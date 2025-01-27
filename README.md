@@ -27,6 +27,7 @@ NIC: 1GB
 
 # Categories
 These are the tested categories so far:
+- [Cache](https://github.com/rah-0/benchmarks/tree/master/cache)
 - [Compression](https://github.com/rah-0/benchmarks/tree/master/compression)
 - [DB](https://github.com/rah-0/benchmarks/tree/master/db)
 - [Protocol](https://github.com/rah-0/benchmarks/tree/master/protocol)
