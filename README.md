@@ -1,5 +1,6 @@
 # Benchmarks
-These benchmarks are executed on a Virtual Machine.
+These benchmarks are executed on a Virtual Machine.  
+The aim of benching is to see what's faster while using the least amount of memory possible and also fewer allocs.
 
 ## About the main system
 **CPU**
@@ -24,5 +25,9 @@ OS: Debian 12, Kernel: 6.1.0-23-amd64
 NIC: 1GB
 
 
-# Results
-The aim of benching is to see what's faster while using the least amount of memory possible for each category.
+# Categories
+These are the tested categories so far:
+- [Compression](https://github.com/rah-0/benchmarks/tree/master/compression)
+- [DB](https://github.com/rah-0/benchmarks/tree/master/db)
+- [Protocol](https://github.com/rah-0/benchmarks/tree/master/protocol)
+- [Serializer](https://github.com/rah-0/benchmarks/tree/master/serializer)
