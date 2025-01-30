@@ -25,7 +25,6 @@ var (
 )
 
 func GenerateMessage(sizeType int) ([]byte, error) {
-	// Get the target size
 	targetSize, ok := Sizes[sizeType]
 	if !ok {
 		return []byte{}, errors.New("invalid size type: must be between 1 and 6")
@@ -45,6 +44,28 @@ func GenerateMessage(sizeType int) ([]byte, error) {
 	}
 
 	return bytes, nil
+}
+
+func GenerateStringMessage(sizeType int) (string, error) {
+	targetSize, ok := Sizes[sizeType]
+	if !ok {
+		return "", errors.New("invalid size type: must be between 1 and 13")
+	}
+
+	// Generate random content
+	bytes := make([]byte, targetSize)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		return "", err
+	}
+
+	// Convert random bytes to a string
+	for i, b := range bytes {
+		// Limit to printable ASCII characters (32 to 126)
+		bytes[i] = 32 + (b % 95)
+	}
+
+	return string(bytes), nil
 }
 
 func GenerateRepeatedMessage(sizeType int) ([]byte, error) {

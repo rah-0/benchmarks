@@ -29,6 +29,7 @@ NIC: 1GB
 These are the tested categories so far:
 - [Cache](https://github.com/rah-0/benchmarks/tree/master/cache)
 - [Compression](https://github.com/rah-0/benchmarks/tree/master/compression)
+- [Encoding](https://github.com/rah-0/benchmarks/tree/master/encoding)
 - [DB](https://github.com/rah-0/benchmarks/tree/master/db)
 - [Protocol](https://github.com/rah-0/benchmarks/tree/master/protocol)
 - [Serializer](https://github.com/rah-0/benchmarks/tree/master/serializer)

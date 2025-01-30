@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/rah-0/benchmarks/util"
 	"github.com/rah-0/benchmarks/util/testutil"
 )
 
@@ -25,7 +26,7 @@ func TestEncodeDecodeBytesOpt1000000Small(t *testing.T) {
 }
 
 func testEncodeDecodeOptBytesPersons(t *testing.T, count int) {
-	persons := GenerateRandomPersons(count)
+	persons := util.GenerateRandomPersons(count)
 
 	for _, original := range persons {
 		err := EncodeBytes(GobEnc, original)
@@ -34,7 +35,7 @@ func testEncodeDecodeOptBytesPersons(t *testing.T, count int) {
 	}
 
 	for _, original := range persons {
-		decoded := &Person{}
+		decoded := &util.Person{}
 		err := DecodeBytes(GobDec, decoded)
 		assert.NoError(t, err, "GOB deserialization should not fail")
 
@@ -63,7 +64,7 @@ func TestEncodeDecodeBytesOpt1000Unreal(t *testing.T) {
 }
 
 func testEncodeDecodeOptBytesUnreals(t *testing.T, count int) {
-	unreals := GenerateRandomUnreals(count)
+	unreals := util.GenerateRandomUnreals(count)
 
 	for _, original := range unreals {
 		err := EncodeBytes(GobEnc, original)
@@ -72,7 +73,7 @@ func testEncodeDecodeOptBytesUnreals(t *testing.T, count int) {
 	}
 
 	for _, original := range unreals {
-		decoded := &Unreal{}
+		decoded := &util.Unreal{}
 		err := DecodeBytes(GobDec, decoded)
 		assert.NoError(t, err, "GOB deserialization should not fail")
 
@@ -216,14 +217,14 @@ func BenchmarkEncodeDecodeBytesOpt1000Unreals(b *testing.B) {
 func runEncodeDecodeBytesOptBenchmark(b *testing.B, count int) {
 	defer testutil.RecoverBenchHandler(b)
 
-	data := GenerateRandomPersons(count)
+	data := util.GenerateRandomPersons(count)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		err := EncodeBytes(GobEnc, data)
 		if err != nil {
 			b.Fatalf("Failed to Encode Gob: %v", err)
 		}
-		var decoded []Person
+		var decoded []util.Person
 		err = DecodeBytes(GobDec, &decoded)
 		if err != nil {
 			b.Fatalf("Failed to Decode Gob: %v", err)
@@ -236,14 +237,14 @@ func runEncodeDecodeBytesOptBenchmark(b *testing.B, count int) {
 func runEncodeDecodeBytesOptUnrealBenchmark(b *testing.B, count int) {
 	defer testutil.RecoverBenchHandler(b)
 
-	data := GenerateRandomUnreals(count)
+	data := util.GenerateRandomUnreals(count)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		err := EncodeBytes(GobEnc, data)
 		if err != nil {
 			b.Fatalf("Failed to Encode Gob: %v", err)
 		}
-		var decoded []Unreal
+		var decoded []util.Unreal
 		err = DecodeBytes(GobDec, &decoded)
 		if err != nil {
 			b.Fatalf("Failed to Decode Gob: %v", err)

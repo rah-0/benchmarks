@@ -6,7 +6,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	serializer2 "github.com/rah-0/benchmarks/serializer"
+	"github.com/rah-0/benchmarks/serializer"
+	"github.com/rah-0/benchmarks/util"
 	"github.com/rah-0/benchmarks/util/testutil"
 )
 
@@ -95,12 +96,12 @@ func runGzipTestRandomData(t *testing.T, sizeType int) {
 }
 
 func runGzipTestStructsSmall(t *testing.T, size int) {
-	originalData := serializer2.GenerateRandomPersons(size)
-	err := serializer2.EncodeBytes(serializer2.GobEnc, originalData)
+	originalData := util.GenerateRandomPersons(size)
+	err := serializer.EncodeBytes(serializer.GobEnc, originalData)
 	if err != nil {
 		t.Fatalf("Failed to encode data %d: %v", size, err)
 	}
-	encodedData := serializer2.GobBuf.Bytes()
+	encodedData := serializer.GobBuf.Bytes()
 
 	compressedData, err := CompressGzip(encodedData)
 	if err != nil {
@@ -119,7 +120,7 @@ func runGzipTestStructsSmall(t *testing.T, size int) {
 	fmt.Printf("Encoded size: %d bytes, Compressed size: %d bytes, Gain %.2f%%\n",
 		dataSize, dataSizeCompressed, testutil.PercentDifference(dataSize, dataSizeCompressed))
 
-	serializer2.GobBuf.Reset()
+	serializer.GobBuf.Reset()
 }
 
 func BenchmarkCompressDecompressGzip(b *testing.B) {

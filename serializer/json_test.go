@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/rah-0/benchmarks/util"
 	"github.com/rah-0/benchmarks/util/testutil"
 )
 
@@ -25,7 +26,7 @@ func TestEncodeDecodeJson1000000Small(t *testing.T) {
 }
 
 func testEncodeDecodeJsonPersons(t *testing.T, count int) {
-	persons := GenerateRandomPersons(count)
+	persons := util.GenerateRandomPersons(count)
 	encodedData := make([][]byte, count)
 
 	for i, original := range persons {
@@ -36,7 +37,7 @@ func testEncodeDecodeJsonPersons(t *testing.T, count int) {
 	}
 
 	for i, data := range encodedData {
-		decoded := &Person{}
+		decoded := &util.Person{}
 		err := DecodeJson(data, decoded)
 		assert.NoError(t, err, "JSON deserialization should not fail")
 
@@ -63,7 +64,7 @@ func TestEncodeDecodeJson1000Unreals(t *testing.T) {
 }
 
 func testEncodeDecodeJsonUnreals(t *testing.T, count int) {
-	unreals := GenerateRandomUnreals(count)
+	unreals := util.GenerateRandomUnreals(count)
 	encodedData := make([][]byte, count)
 
 	for i, original := range unreals {
@@ -74,7 +75,7 @@ func testEncodeDecodeJsonUnreals(t *testing.T, count int) {
 	}
 
 	for i, data := range encodedData {
-		decoded := &Unreal{}
+		decoded := &util.Unreal{}
 		err := DecodeJson(data, decoded)
 		assert.NoError(t, err, "JSON deserialization should not fail")
 
@@ -200,7 +201,7 @@ func BenchmarkEncodeDecodeJson1000000Small(b *testing.B) {
 func runEncodeDecodeJsonBenchmark(b *testing.B, count int) {
 	defer testutil.RecoverBenchHandler(b)
 
-	data := GenerateRandomPersons(count)
+	data := util.GenerateRandomPersons(count)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -209,7 +210,7 @@ func runEncodeDecodeJsonBenchmark(b *testing.B, count int) {
 			b.Fatalf("Failed to Encode JSON: %v", err)
 		}
 
-		var decoded []Person
+		var decoded []util.Person
 		err = DecodeJson(encodedData, &decoded)
 		if err != nil {
 			b.Fatalf("Failed to Decode JSON: %v", err)
@@ -236,7 +237,7 @@ func BenchmarkEncodeDecodeJson1000Unreals(b *testing.B) {
 func runEncodeDecodeJsonUnrealBenchmark(b *testing.B, count int) {
 	defer testutil.RecoverBenchHandler(b)
 
-	data := GenerateRandomUnreals(count)
+	data := util.GenerateRandomUnreals(count)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -245,7 +246,7 @@ func runEncodeDecodeJsonUnrealBenchmark(b *testing.B, count int) {
 			b.Fatalf("Failed to Encode JSON: %v", err)
 		}
 
-		var decoded []Unreal
+		var decoded []util.Unreal
 		err = DecodeJson(encodedData, &decoded)
 		if err != nil {
 			b.Fatalf("Failed to Decode JSON: %v", err)

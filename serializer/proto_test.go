@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	pb2 "github.com/rah-0/benchmarks/serializer/pb"
+	"github.com/rah-0/benchmarks/util"
 	"github.com/rah-0/benchmarks/util/testutil"
 )
 
@@ -26,7 +27,7 @@ func TestEncodeDecodeProto1000000Small(t *testing.T) {
 }
 
 func testEncodeDecodePersons(t *testing.T, count int) {
-	persons := GenerateRandomPersons(count)
+	persons := util.GenerateRandomPersons(count)
 	encodedData := make([][]byte, count)
 
 	for i, original := range persons {
@@ -68,7 +69,7 @@ func TestEncodeDecodeUnreal1000(t *testing.T) {
 }
 
 func testEncodeDecodeUnreals(t *testing.T, count int) {
-	unreals := GenerateRandomUnreals(count)
+	unreals := util.GenerateRandomUnreals(count)
 	encodedData := make([][]byte, count)
 
 	for i, original := range unreals {
@@ -306,7 +307,7 @@ func BenchmarkEncodeDecodeProto1000000Small(b *testing.B) {
 func runEncodeDecodeProtoBenchmark(b *testing.B, count int) {
 	defer testutil.RecoverBenchHandler(b)
 
-	data := GenerateRandomPersons(count)
+	data := util.GenerateRandomPersons(count)
 	protoData := make([]*pb2.Person, len(data))
 	for i, p := range data {
 		protoData[i] = &pb2.Person{
@@ -352,7 +353,7 @@ func BenchmarkEncodeDecodeProto1000Unreals(b *testing.B) {
 func runEncodeDecodeProtoUnrealBenchmark(b *testing.B, count int) {
 	defer testutil.RecoverBenchHandler(b)
 
-	data := GenerateRandomUnreals(count)
+	data := util.GenerateRandomUnreals(count)
 	protoData := make([]*pb2.Unreal, len(data))
 	for i, u := range data {
 		protoData[i] = &pb2.Unreal{

@@ -7,11 +7,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/rah-0/benchmarks/util"
 	"github.com/rah-0/benchmarks/util/testutil"
 )
 
 func TestEncodeDecodeBytes(t *testing.T) {
-	original := GenerateRandomPersons(1)[0]
+	original := util.GenerateRandomPersons(1)[0]
 
 	buf := &bytes.Buffer{}
 	enc := gob.NewEncoder(buf)
@@ -20,7 +21,7 @@ func TestEncodeDecodeBytes(t *testing.T) {
 	err := EncodeBytes(enc, original)
 	assert.NoError(t, err, "GOB serialization should not fail")
 
-	decoded := &Person{}
+	decoded := &util.Person{}
 	err = DecodeBytes(dec, decoded)
 	assert.NoError(t, err, "GOB deserialization should not fail")
 
@@ -48,12 +49,12 @@ func BenchmarkEncodeDecodeBytes1000000Small(b *testing.B) {
 func runEncodeDecodeBytesBenchmark(b *testing.B, count int) {
 	defer testutil.RecoverBenchHandler(b)
 
-	data := GenerateRandomPersons(count)
+	data := util.GenerateRandomPersons(count)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		buf := &bytes.Buffer{}
-		var decoded []Person
+		var decoded []util.Person
 
 		enc := gob.NewEncoder(buf)
 		err := EncodeBytes(enc, data)
@@ -88,12 +89,12 @@ func BenchmarkEncodeDecodeBytes1000Unreals(b *testing.B) {
 func runEncodeDecodeBytesUnrealBenchmark(b *testing.B, count int) {
 	defer testutil.RecoverBenchHandler(b)
 
-	data := GenerateRandomUnreals(count)
+	data := util.GenerateRandomUnreals(count)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		buf := &bytes.Buffer{}
-		var decoded []Unreal
+		var decoded []util.Unreal
 
 		enc := gob.NewEncoder(buf)
 		err := EncodeBytes(enc, data)
