@@ -1,0 +1,19 @@
+language: go
+
+branches:
+  only:
+    - master
+
+go:
+  - stable
+
+before_install:
+  - go get -t -v ./...
+
+script:
+  - go test ./...
+  #- go test -benchmem -bench .
+  - go test ./... -race -coverprofile=coverage.txt -covermode=atomic
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

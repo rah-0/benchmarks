@@ -1,3 +1,6 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/rah-0/benchmarks)](https://goreportcard.com/report/github.com/rah-0/benchmarks)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # Benchmarks
 These benchmarks are executed on a Virtual Machine.  
 The aim of benching is to see what's faster while using the least amount of memory possible and also fewer allocs.
