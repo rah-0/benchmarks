@@ -41,4 +41,7 @@ net-write-timeout=3600
 ```
 BenchmarkMariaDBSingleInsertFixedData-8           226855            312530 ns/op             752 B/op         21 allocs/op
 BenchmarkMariaDBSingleInsertRandomData-8          229183            312220 ns/op             816 B/op         23 allocs/op
+
+BenchmarkSQLiteSingleInsertFixedData-8   	    1606	    687551 ns/op	     736 B/op	      18 allocs/op
+BenchmarkSQLiteSingleInsertRandomData-8   	    1621	    717496 ns/op	     800 B/op	      20 allocs/op
 ```
