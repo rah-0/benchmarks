@@ -1,6 +1,7 @@
 package serializer
 
 import (
+	"encoding/gob"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -8,6 +9,42 @@ import (
 	"github.com/rah-0/benchmarks/util"
 	"github.com/rah-0/benchmarks/util/testutil"
 )
+
+func TestMain(m *testing.M) {
+	testutil.TestMainWrapper(testutil.TestConfig{
+		M: m,
+		LoadResources: func() error {
+			gob.Register(util.Person{})
+			gob.Register(util.Unreal{})
+
+			pa := util.Person{}
+			if err := EncodeBytes(GobEnc, pa); err != nil {
+				return err
+			}
+			pb := util.Person{}
+			if err := DecodeBytes(GobDec, &pb); err != nil {
+				return err
+			}
+			GobBuf.Reset()
+
+			ua := util.Unreal{}
+			if err := EncodeBytes(GobEnc, ua); err != nil {
+				return err
+			}
+			ub := util.Unreal{}
+			if err := DecodeBytes(GobDec, &ub); err != nil {
+				return err
+			}
+			GobBuf.Reset()
+
+			return nil
+		},
+		UnloadResources: func() error {
+
+			return nil
+		},
+	})
+}
 
 func TestEncodeDecodeBytesOpt1Small(t *testing.T) {
 	testEncodeDecodeOptBytesPersons(t, 1)
@@ -218,6 +255,7 @@ func runEncodeDecodeBytesOptBenchmark(b *testing.B, count int) {
 	defer testutil.RecoverBenchHandler(b)
 
 	data := util.GenerateRandomPersons(count)
+	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		err := EncodeBytes(GobEnc, data)
@@ -238,6 +276,7 @@ func runEncodeDecodeBytesOptUnrealBenchmark(b *testing.B, count int) {
 	defer testutil.RecoverBenchHandler(b)
 
 	data := util.GenerateRandomUnreals(count)
+	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		err := EncodeBytes(GobEnc, data)
