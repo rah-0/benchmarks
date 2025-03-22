@@ -31,9 +31,6 @@ func dbDisconnect() error {
 func dbTableSampleACreate() error {
 	createTableQuery := `
 	CREATE TABLE IF NOT EXISTS sample_a (
-		Id INTEGER PRIMARY KEY AUTOINCREMENT,
-		FirstInsert DATETIME DEFAULT CURRENT_TIMESTAMP,
-		LastUpdate DATETIME DEFAULT CURRENT_TIMESTAMP,
 		FieldA TEXT NOT NULL
 	);
 	`

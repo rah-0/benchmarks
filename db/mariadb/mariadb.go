@@ -57,11 +57,7 @@ func dbDisconnect() error {
 func dbTableSampleACreate() error {
 	createTableQuery := `
 	CREATE TABLE IF NOT EXISTS sample_a (
-		Id INT(11) NOT NULL AUTO_INCREMENT,
-		FirstInsert DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-		LastUpdate DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
-		FieldA VARCHAR(36) NOT NULL DEFAULT '',
-		PRIMARY KEY (Id)
+		FieldA VARCHAR(36) NOT NULL DEFAULT ''
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT`
 
 	_, err := db.Exec(createTableQuery)
