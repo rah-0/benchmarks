@@ -1,6 +1,24 @@
-# DB's
+# Results
 
-MariaDB is installed in the VM itself to avoid networking delays.
+```
+MariaDB
+BenchmarkMariaDBSingleInsertFixedData-8         312530 ns/op        752 B/op        21 allocs/op
+BenchmarkMariaDBSingleInsertRandomData-8        312220 ns/op        816 B/op        23 allocs/op
+Note: if innodb-flush-log-at-trx-commit is set to 0 the results are:
+BenchmarkMariaDBSingleInsertFixedData-8	        193053 ns/op        752 B/op        21 allocs/op
+BenchmarkMariaDBSingleInsertRandomData-8        195988 ns/op	    816 B/op	    23 allocs/op
+
+PostgreSQL
+BenchmarkPostgresSingleInsertFixedData-8        392730 ns/op	    861 B/op	    17 allocs/op
+BenchmarkPostgresSingleInsertRandomData-8   	407166 ns/op	    925 B/op	    19 allocs/op
+
+SQLite
+BenchmarkSQLiteSingleInsertFixedData-8          687551 ns/op        736 B/op        18 allocs/op
+BenchmarkSQLiteSingleInsertRandomData-8         717496 ns/op        800 B/op        20 allocs/op
+```
+
+# Configs and details
+DB's are installed in the VM itself to avoid networking delays.
 
 ## MariaDB
 Version: 11.4.2-MariaDB-deb12  
@@ -33,20 +51,43 @@ innodb-read-io-threads=4
 innodb-autoextend-increment=256
 innodb-old-blocks-time=500
 innodb-file-per-table=ON
-
-net-read-timeout=3600
-net-write-timeout=3600
 ```
 
+## PostgreSQL
+Version: psql 15.12 (Debian 15.12-0+deb12u2)  
+Config: 
 ```
-MariaDB
-BenchmarkMariaDBSingleInsertFixedData-8         312530 ns/op        752 B/op        21 allocs/op
-BenchmarkMariaDBSingleInsertRandomData-8        312220 ns/op        816 B/op        23 allocs/op
-Note: if innodb-flush-log-at-trx-commit is set to 0 the results are:
-BenchmarkMariaDBSingleInsertFixedData-8	        193053 ns/op        752 B/op        21 allocs/op
-BenchmarkMariaDBSingleInsertRandomData-8        195988 ns/op	    816 B/op	    23 allocs/op
+# Encoding and collation
+client_encoding = 'UTF8'
+timezone = 'UTC'
 
-SQLite
-BenchmarkSQLiteSingleInsertFixedData-8          687551 ns/op        736 B/op        18 allocs/op
-BenchmarkSQLiteSingleInsertRandomData-8         717496 ns/op        800 B/op        20 allocs/op
+# Memory settings 
+work_mem = 128MB               
+maintenance_work_mem = 512MB
+shared_buffers = 16GB         
+effective_cache_size = 48GB   
+
+# Write behavior
+wal_level = replica
+fsync = on
+synchronous_commit = on       
+wal_buffers = 16MB
+commit_delay = 0
+checkpoint_completion_target = 0.9
+checkpoint_timeout = 15min
+max_wal_size = 8GB          
+wal_writer_delay = 200ms
+
+# Temporary tables and buffers
+temp_buffers = 64MB
+temp_file_limit = 2GB
+max_files_per_process = 1000
+
+# Parallelism and concurrency
+max_worker_processes = 8
+max_parallel_workers = 8
+max_parallel_workers_per_gather = 4
+parallel_leader_participation = on
 ```
+
+
