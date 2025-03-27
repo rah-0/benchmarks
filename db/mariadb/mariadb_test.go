@@ -62,3 +62,34 @@ func BenchmarkMariaDBSingleInsertRandomData(b *testing.B) {
 		}
 	}
 }
+
+func BenchmarkMariaDBInsert1MilAndFindMiddle(b *testing.B) {
+	defer testutil.RecoverBenchHandler(b)
+
+	const totalRows = 1_000_000
+	middleIndex := totalRows / 2
+	uuids := make([]string, totalRows)
+
+	for i := range uuids {
+		uuids[i] = uuid.NewString()
+	}
+
+	for _, id := range uuids {
+		if err := dbTableSampleAInsert(id); err != nil {
+			b.Fatalf("Insert failed: %v", err)
+		}
+	}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		var found string
+		row := db.QueryRow(`SELECT FieldA FROM sample_a WHERE FieldA = ? LIMIT 1`, uuids[middleIndex])
+		if err := row.Scan(&found); err != nil {
+			b.Fatalf("Select failed: %v", err)
+		}
+		if found != uuids[middleIndex] {
+			b.Fatalf("Expected %s, got %s", uuids[middleIndex], found)
+		}
+	}
+}

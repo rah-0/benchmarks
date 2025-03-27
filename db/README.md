@@ -2,19 +2,21 @@
 
 ```
 MariaDB
-BenchmarkMariaDBSingleInsertFixedData-8         312530 ns/op        752 B/op        21 allocs/op
-BenchmarkMariaDBSingleInsertRandomData-8        312220 ns/op        816 B/op        23 allocs/op
-Note: if innodb-flush-log-at-trx-commit is set to 0 the results are:
-BenchmarkMariaDBSingleInsertFixedData-8	        193053 ns/op        752 B/op        21 allocs/op
-BenchmarkMariaDBSingleInsertRandomData-8        195988 ns/op	    816 B/op	    23 allocs/op
+SingleInsertFixedData-8	        193053 ns/op        752 B/op        21 allocs/op # innodb-flush-log-at-trx-commit is set to 0
+SingleInsertRandomData-8        195988 ns/op	    816 B/op	    23 allocs/op # innodb-flush-log-at-trx-commit is set to 0
+SingleInsertFixedData-8         312530 ns/op        752 B/op        21 allocs/op
+SingleInsertRandomData-8        312220 ns/op        816 B/op        23 allocs/op
+Insert1MilAndFindMiddle-8       164306697 ns/op     987 B/op	    26 allocs/op
 
 PostgreSQL
-BenchmarkPostgresSingleInsertFixedData-8        392730 ns/op	    861 B/op	    17 allocs/op
-BenchmarkPostgresSingleInsertRandomData-8   	407166 ns/op	    925 B/op	    19 allocs/op
+SingleInsertFixedData-8         392730 ns/op	    861 B/op	    17 allocs/op
+SingleInsertRandomData-8        407166 ns/op	    925 B/op	    19 allocs/op
+Insert1MilAndFindMiddle-8       53271012 ns/op      864 B/op        22 allocs/op
 
 SQLite
-BenchmarkSQLiteSingleInsertFixedData-8          687551 ns/op        736 B/op        18 allocs/op
-BenchmarkSQLiteSingleInsertRandomData-8         717496 ns/op        800 B/op        20 allocs/op
+SingleInsertFixedData-8         687551 ns/op        736 B/op        18 allocs/op
+SingleInsertRandomData-8        717496 ns/op        800 B/op        20 allocs/op
+Insert1MilAndFindMiddle-8       63418844 ns/op      728 B/op        23 allocs/op
 ```
 
 # Configs and details
