@@ -1,6 +1,8 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/rah-0/benchmarks)](https://goreportcard.com/report/github.com/rah-0/benchmarks)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+<a href="https://www.buymeacoffee.com/rah.0" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/arial-orange.png" alt="Buy Me A Coffee" height="50"></a>
+
 # Benchmarks
 These benchmarks are executed on a Virtual Machine.  
 The aim of benching is to see what's faster while using the least amount of memory possible and also fewer allocs.
@@ -36,3 +38,8 @@ These are the tested categories so far:
 - [DB](https://github.com/rah-0/benchmarks/tree/master/db)
 - [Protocol](https://github.com/rah-0/benchmarks/tree/master/protocol)
 - [Serializer](https://github.com/rah-0/benchmarks/tree/master/serializer)
+
+# ☕ Support
+If **benchmarks** helped you optimize your Go projects, consider showing your appreciation. Your support fuels further benchmarking adventures!
+
+[![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/default-orange.png)](https://www.buymeacoffee.com/rah.0)
