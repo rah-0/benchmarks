@@ -10,6 +10,10 @@ import (
 	"github.com/rah-0/parsort"
 )
 
+func init() {
+	parsort.Tune()
+}
+
 var testSizes = []int{10_000, 100_000, 1_000_000, 10_000_000}
 
 func BenchmarkSortInts(b *testing.B) {
