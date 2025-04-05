@@ -56,9 +56,11 @@ func dbDisconnect() error {
 
 func dbTableSampleACreate() error {
 	createTableQuery := `
-	CREATE TABLE IF NOT EXISTS sample_a (
-		FieldA VARCHAR(36) NOT NULL DEFAULT ''
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT`
+CREATE TABLE IF NOT EXISTS sample_a (
+	FieldA VARCHAR(36) NOT NULL DEFAULT '',
+	INDEX idx_field_a (FieldA)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT
+`
 
 	_, err := db.Exec(createTableQuery)
 	if err != nil {

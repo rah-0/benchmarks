@@ -21,6 +21,12 @@ func dbConnect() error {
 	db.SetMaxOpenConns(runtime.NumCPU())
 	db.SetConnMaxLifetime(time.Minute * 5)
 	db.SetConnMaxIdleTime(time.Minute * 1)
+	db.Exec(`PRAGMA synchronous = OFF;`)
+	db.Exec(`PRAGMA journal_mode = WAL;`)
+	db.Exec(`PRAGMA cache_size = -2097152;`)
+	db.Exec(`PRAGMA temp_store = MEMORY;`)
+	db.Exec(`PRAGMA locking_mode = EXCLUSIVE;`)
+	db.Exec(`PRAGMA mmap_size = 8589934592;`)
 	return nil
 }
 
@@ -35,6 +41,11 @@ func dbTableSampleACreate() error {
 	);
 	`
 	_, err := db.Exec(createTableQuery)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`CREATE INDEX IF NOT EXISTS idx_field_a ON sample_a(FieldA);`)
 	return err
 }
 

@@ -57,7 +57,16 @@ func dbTableSampleACreate() error {
 	);`
 
 	_, err := db.Exec(query)
-	return err
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`CREATE INDEX IF NOT EXISTS idx_field_a ON sample_a(FieldA);`)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func dbTableSampleADrop() error {

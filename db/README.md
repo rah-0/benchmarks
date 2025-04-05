@@ -1,23 +1,19 @@
 # Results
 
-```
-MariaDB
-SingleInsertFixedData-8	        193053 ns/op        752 B/op        21 allocs/op # innodb-flush-log-at-trx-commit is set to 0
-SingleInsertRandomData-8        195988 ns/op	    816 B/op	    23 allocs/op # innodb-flush-log-at-trx-commit is set to 0
-SingleInsertFixedData-8         312530 ns/op        752 B/op        21 allocs/op
-SingleInsertRandomData-8        312220 ns/op        816 B/op        23 allocs/op
-Insert1MilAndFindMiddle-8       164306697 ns/op     987 B/op	    26 allocs/op
+All database engines are configured to minimize durability guarantees and maximize raw throughput, ensuring fair, in-memory-heavy benchmarking without I/O bottlenecks or network delays. All databases are installed directly on the same VM.
 
-PostgreSQL
-SingleInsertFixedData-8         392730 ns/op	    861 B/op	    17 allocs/op
-SingleInsertRandomData-8        407166 ns/op	    925 B/op	    19 allocs/op
-Insert1MilAndFindMiddle-8       53271012 ns/op      864 B/op        22 allocs/op
+| Benchmark               | Database  | MEM   | CPU    |
+|-------------------------|-----------|-------|--------|
+| Single Insert (Fixed)   | MariaDB   | 800 B | 197 µs |
+| Single Insert (Fixed)   | Postgres  | 912 B | 275 µs |
+| Single Insert (Fixed)   | SQLite    | 784 B | 16 µs  |
+| Single Insert (Random)  | MariaDB   | 864 B | 199 µs |
+| Single Insert (Random)  | Postgres  | 976 B | 290 µs |
+| Single Insert (Random)  | SQLite    | 848 B | 46 µs  |
+| Insert 1M + Find Middle | MariaDB   | 792 B | 222 µs |
+| Insert 1M + Find Middle | Postgres  | 864 B | 201 µs |
+| Insert 1M + Find Middle | SQLite    | 728 B | 6 µs   |
 
-SQLite
-SingleInsertFixedData-8         687551 ns/op        736 B/op        18 allocs/op
-SingleInsertRandomData-8        717496 ns/op        800 B/op        20 allocs/op
-Insert1MilAndFindMiddle-8       63418844 ns/op      728 B/op        23 allocs/op
-```
 
 # Configs and details
 DB's are installed in the VM itself to avoid networking delays.
@@ -41,7 +37,7 @@ table-definition-cache=2000
 max-connections=3000
 tmp-table-size=512M
 
-innodb-flush-log-at-trx-commit=1
+innodb-flush-log-at-trx-commit=0
 innodb-log-buffer-size=512M
 innodb-buffer-pool-size=16G
 innodb-buffer-pool-instances=8
@@ -71,14 +67,14 @@ effective_cache_size = 48GB
 
 # Write behavior
 wal_level = replica
-fsync = on
-synchronous_commit = on       
+fsync = off
+synchronous_commit = off       
 wal_buffers = 16MB
 commit_delay = 0
 checkpoint_completion_target = 0.9
 checkpoint_timeout = 15min
 max_wal_size = 8GB          
-wal_writer_delay = 200ms
+wal_writer_delay = 1000ms
 
 # Temporary tables and buffers
 temp_buffers = 64MB
@@ -92,4 +88,14 @@ max_parallel_workers_per_gather = 4
 parallel_leader_participation = on
 ```
 
-
+## SQLite
+Version: 3.40.1 2022-12-28 14:03:47 df5c253c0b3dd24916e4ec7cf77d3db5294cc9fd45ae7b9c5e82ad8197f3alt1  
+Config:
+```
+PRAGMA synchronous = OFF
+PRAGMA journal_mode = WAL
+PRAGMA cache_size = -2097152
+PRAGMA temp_store = MEMORY
+PRAGMA locking_mode = EXCLUSIVE
+PRAGMA mmap_size = 8589934592
+```

@@ -17,22 +17,28 @@ run_benchmark() {
   mkdir -p ./pprof_svg
 
   go test -run=^$ -bench="^${bench_target}$" -benchmem "${bench_dir}" -benchtime="${bench_time}" -timeout=0 \
-    -memprofile="${mem_profile}" -cpuprofile="${cpu_profile}" | testmark \
-    && go tool pprof -svg -output="${mem_svg}" "${mem_profile}" \
-    && go tool pprof -svg -output="${cpu_svg}" "${cpu_profile}"
+    -memprofile="${mem_profile}" -cpuprofile="${cpu_profile}" | testmark | grep -E '^Benchmark'
 
-  if [[ $? -eq 0 ]]; then
-    echo "Benchmark '${bench_target}' completed successfully."
-    echo "Memory profile saved to: ${mem_svg}"
-    echo "CPU profile saved to: ${cpu_svg}"
-  else
-    echo "An error occurred during benchmarking."
-  fi
-
-  rm "${profile_name}.test" > /dev/null 2>&1
+  go tool pprof -svg -output="${mem_svg}" "${mem_profile}" >/dev/null 2>&1
+  go tool pprof -svg -output="${cpu_svg}" "${cpu_profile}" >/dev/null 2>&1
 }
 
 rm -rf ./pprof_svg/*
 
 # Example usage:
-run_benchmark "mariadb" "5s" "BenchmarkMariaDBSingleInsertFixedData" "./db/mariadb"
+time="60s"
+
+run_benchmark "mariadb1" "${time}" "BenchmarkMariaDBSingleInsertFixedData" "./db/mariadb"
+run_benchmark "postgres1" "${time}" "BenchmarkPostgresSingleInsertFixedData" "./db/postgresql"
+run_benchmark "sqlite1" "${time}" "BenchmarkSQLiteSingleInsertFixedData" "./db/sqlite"
+
+run_benchmark "mariadb2" "${time}" "BenchmarkMariaDBSingleInsertRandomData" "./db/mariadb"
+run_benchmark "postgres2" "${time}" "BenchmarkPostgresSingleInsertRandomData" "./db/postgresql"
+run_benchmark "sqlite2" "${time}" "BenchmarkSQLiteSingleInsertRandomData" "./db/sqlite"
+
+run_benchmark "mariadb3" "${time}" "BenchmarkMariaDBInsert1MilAndFindMiddle" "./db/mariadb"
+run_benchmark "postgres3" "${time}" "BenchmarkPostgresInsert1MilAndFindMiddle" "./db/postgresql"
+run_benchmark "sqlite3" "${time}" "BenchmarkSQLiteInsert1MilAndFindMiddle" "./db/sqlite"
+
+
+rm ./*.test > /dev/null 2>&1
