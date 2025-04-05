@@ -1,4 +1,4 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/rah-0/benchmarks)](https://goreportcard.com/report/github.com/rah-0/benchmarks)
+~~[![Go Report Card](https://goreportcard.com/badge/github.com/rah-0/benchmarks)](https://goreportcard.com/report/github.com/rah-0/benchmarks)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 <a href="https://www.buymeacoffee.com/rah.0" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/arial-orange.png" alt="Buy Me A Coffee" height="50"></a>
@@ -34,12 +34,13 @@ NIC: 1GB
 These are the tested categories so far:
 - [Cache](https://github.com/rah-0/benchmarks/tree/master/cache)
 - [Compression](https://github.com/rah-0/benchmarks/tree/master/compression)
-- [Encoding](https://github.com/rah-0/benchmarks/tree/master/encoding)
 - [DB](https://github.com/rah-0/benchmarks/tree/master/db)
+- [Encoding](https://github.com/rah-0/benchmarks/tree/master/encoding)
+- [Meta](https://github.com/rah-0/benchmarks/tree/master/meta)
 - [Protocol](https://github.com/rah-0/benchmarks/tree/master/protocol)
 - [Serializer](https://github.com/rah-0/benchmarks/tree/master/serializer)
 
 # ☕ Support
 If **benchmarks** helped you optimize your Go projects, consider showing your appreciation. Your support fuels further benchmarking adventures!
 
-[![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/default-orange.png)](https://www.buymeacoffee.com/rah.0)
+[![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/default-orange.png)](https://www.buymeacoffee.com/rah.0)~~
