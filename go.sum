@@ -40,8 +40,8 @@ github.com/pierrec/lz4/v4 v4.1.22 h1:cKFw6uJDK+/gfw5BcDL0JL5aBsAFdsIT18eRtLj7VIU
 github.com/pierrec/lz4/v4 v4.1.22/go.mod h1:gZWDp/Ze/IJXGXf23ltt2EXimqmTUXEy0GFuRQyBid4=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/rah-0/hyperion v0.0.2 h1:haPw8xxlBDYorxALYIfStE64pw8tcsK9UGHEX2wpiiw=
-github.com/rah-0/hyperion v0.0.2/go.mod h1:te2zMwHWLNBnzMlXQYbS1FGYalBnYouumgBI02qqvWw=
+github.com/rah-0/hyperion v0.0.3 h1:iPbLt6yRllYs2SThvpBlDEGc891jRmFxry/+s/OIVv8=
+github.com/rah-0/hyperion v0.0.3/go.mod h1:te2zMwHWLNBnzMlXQYbS1FGYalBnYouumgBI02qqvWw=
 github.com/rah-0/nabu v0.0.4 h1:O5NiE/zp3hn01zcTsFwlDfIxwaEb9Uo6xL0V1LvKeo0=
 github.com/rah-0/nabu v0.0.4/go.mod h1:MCTYZOSPbh+wkJHyqqE699jD0ap3keq9rBuX9kq6FzQ=
 github.com/rah-0/parsort v1.3.1 h1:hzXjVonj3oVYho4cvX3DnqrYTEvn2UdBZ6sDyb7i9FY=

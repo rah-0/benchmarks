@@ -12,7 +12,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/pierrec/lz4/v4 v4.1.22
-	github.com/rah-0/hyperion v0.0.2
+	github.com/rah-0/hyperion v0.0.3
 	github.com/rah-0/parsort v1.3.1
 	github.com/rah-0/testmark v1.0.3
 	github.com/redis/go-redis/v9 v9.7.0
