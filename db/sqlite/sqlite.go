@@ -37,16 +37,23 @@ func dbDisconnect() error {
 func dbTableSampleACreate() error {
 	createTableQuery := `
 	CREATE TABLE IF NOT EXISTS sample_a (
-		FieldA TEXT NOT NULL
+		FieldA TEXT NOT NULL,
+		FirstInsert DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 	);
 	`
-	_, err := db.Exec(createTableQuery)
-	if err != nil {
+	if _, err := db.Exec(createTableQuery); err != nil {
 		return err
 	}
 
-	_, err = db.Exec(`CREATE INDEX IF NOT EXISTS idx_field_a ON sample_a(FieldA);`)
-	return err
+	if _, err := db.Exec(`CREATE INDEX IF NOT EXISTS idx_field_a ON sample_a(FieldA);`); err != nil {
+		return err
+	}
+
+	if _, err := db.Exec(`CREATE INDEX IF NOT EXISTS idx_first_insert ON sample_a(FirstInsert);`); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func dbTableSampleADrop() error {

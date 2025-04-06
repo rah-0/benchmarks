@@ -28,17 +28,30 @@ rm -rf ./pprof_svg/*
 # Example usage:
 time="60s"
 
-run_benchmark "mariadb1" "${time}" "BenchmarkMariaDBSingleInsertFixedData" "./db/mariadb"
-run_benchmark "postgres1" "${time}" "BenchmarkPostgresSingleInsertFixedData" "./db/postgresql"
-run_benchmark "sqlite1" "${time}" "BenchmarkSQLiteSingleInsertFixedData" "./db/sqlite"
+#run_benchmark "mariadb1" "${time}" "BenchmarkMariaDBSingleInsertFixedData" "./db/mariadb"
+#run_benchmark "postgres1" "${time}" "BenchmarkPostgresSingleInsertFixedData" "./db/postgresql"
+#run_benchmark "sqlite1" "${time}" "BenchmarkSQLiteSingleInsertFixedData" "./db/sqlite"
+#run_benchmark "hyperion1" "${time}" "BenchmarkHyperionSingleInsertFixedData" "./db/hyperion"
 
-run_benchmark "mariadb2" "${time}" "BenchmarkMariaDBSingleInsertRandomData" "./db/mariadb"
-run_benchmark "postgres2" "${time}" "BenchmarkPostgresSingleInsertRandomData" "./db/postgresql"
-run_benchmark "sqlite2" "${time}" "BenchmarkSQLiteSingleInsertRandomData" "./db/sqlite"
+#run_benchmark "mariadb2" "${time}" "BenchmarkMariaDBSingleInsertRandomData" "./db/mariadb"
+#run_benchmark "postgres2" "${time}" "BenchmarkPostgresSingleInsertRandomData" "./db/postgresql"
+#run_benchmark "sqlite2" "${time}" "BenchmarkSQLiteSingleInsertRandomData" "./db/sqlite"
+#run_benchmark "hyperion2" "${time}" "BenchmarkHyperionSingleInsertRandomData" "./db/hyperion"
 
-run_benchmark "mariadb3" "${time}" "BenchmarkMariaDBInsert1MilAndFindMiddle" "./db/mariadb"
-run_benchmark "postgres3" "${time}" "BenchmarkPostgresInsert1MilAndFindMiddle" "./db/postgresql"
-run_benchmark "sqlite3" "${time}" "BenchmarkSQLiteInsert1MilAndFindMiddle" "./db/sqlite"
+#run_benchmark "mariadb3" "${time}" "BenchmarkMariaDBInsert1MilAndFindMiddle" "./db/mariadb"
+#run_benchmark "postgres3" "${time}" "BenchmarkPostgresInsert1MilAndFindMiddle" "./db/postgresql"
+#run_benchmark "sqlite3" "${time}" "BenchmarkSQLiteInsert1MilAndFindMiddle" "./db/sqlite"
+#run_benchmark "hyperion3" "${time}" "BenchmarkHyperionInsert1MilAndFindMiddle" "./db/hyperion"
+
+#run_benchmark "mariadb4" "${time}" "BenchmarkMariaDBInsert100kAndSort" "./db/mariadb"
+#run_benchmark "postgres4" "${time}" "BenchmarkPostgresInsert100kAndSort" "./db/postgresql"
+#run_benchmark "sqlite4" "${time}" "BenchmarkSQLiteInsert100kAndSort" "./db/sqlite"
+#run_benchmark "hyperion4" "${time}" "BenchmarkHyperionInsert100kAndSort" "./db/hyperion"
+
+#run_benchmark "mariadb5" "${time}" "BenchmarkMariaDBInsert100kAndQueryOlderThan15Min" "./db/mariadb"
+#run_benchmark "postgres5" "${time}" "BenchmarkPostgresInsert100kAndQueryOlderThan15Min" "./db/postgresql"
+#run_benchmark "sqlite5" "${time}" "BenchmarkSQLiteInsert100kAndQueryOlderThan15Min" "./db/sqlite"
+#run_benchmark "hyperion5" "${time}" "BenchmarkHyperionInsert100kAndQueryOlderThan15Min" "./db/hyperion"
 
 
 rm ./*.test > /dev/null 2>&1

@@ -2,18 +2,35 @@
 
 All database engines are configured to minimize durability guarantees and maximize raw throughput, ensuring fair, in-memory-heavy benchmarking without I/O bottlenecks or network delays. All databases are installed directly on the same VM.
 
-| Benchmark               | Database  | MEM   | CPU    |
-|-------------------------|-----------|-------|--------|
-| Single Insert (Fixed)   | MariaDB   | 800 B | 197 µs |
-| Single Insert (Fixed)   | Postgres  | 912 B | 275 µs |
-| Single Insert (Fixed)   | SQLite    | 784 B | 16 µs  |
-| Single Insert (Random)  | MariaDB   | 864 B | 199 µs |
-| Single Insert (Random)  | Postgres  | 976 B | 290 µs |
-| Single Insert (Random)  | SQLite    | 848 B | 46 µs  |
-| Insert 1M + Find Middle | MariaDB   | 792 B | 222 µs |
-| Insert 1M + Find Middle | Postgres  | 864 B | 201 µs |
-| Insert 1M + Find Middle | SQLite    | 728 B | 6 µs   |
+Results are ordered from the fastest CPU bench to slowest per category.
 
+| Category                     | Database | MEM               | CPU               |
+|------------------------------|----------|-------------------|-------------------|
+| Single Insert (Fixed)        |          |                   |                   |
+|                              | SQLite   | 784 B             | 16 µs             |
+|                              | Hyperion | 480 B             | 106 µs            |
+|                              | MariaDB  | 800 B             | 197 µs            |
+|                              | Postgres | 912 B             | 275 µs            |
+| Single Insert (Random)       |          |                   |                   |
+|                              | SQLite   | 848 B             | 46 µs             |
+|                              | Hyperion | 544 B             | 106 µs            |
+|                              | MariaDB  | 864 B             | 199 µs            |
+|                              | Postgres | 976 B             | 290 µs            |
+| Insert 1M + Find Middle      |          |                   |                   |
+|                              | SQLite   | 728 B             | 6 µs              |
+|                              | Hyperion | 888 B             | 100 µs            |
+|                              | MariaDB  | 792 B             | 222 µs            |
+|                              | Postgres | 864 B             | 201 µs            |
+| Insert 100K + Order + Check  |          |                   |                   |
+|                              | MariaDB  | 8MiB 402KiB 442B  | 18ms 392µs 175ns  | 
+|                              | Postgres | 7MiB 645KiB 194B  | 18ms 897µs 904ns  |  
+|                              | SQLite   | 7MiB 645KiB 229B  | 35ms 931µs 155ns  |
+|                              | Hyperion | 29MiB 978KiB 328B | 203ms 496µs 979ns |
+| Insert 100K + Order + Filter |          |                   |                   | 
+|                              | Postgres | 12MiB 212KiB 953B | 35ms 884µs 984ns  |
+|                              | MariaDB  | 11MiB 611KiB 920B | 45ms 475µs 517ns  |
+|                              | SQLite   | 29MiB 930KiB 899B | 130ms 278µs 472ns | 
+|                              | Hyperion | 26MiB 579KiB 297B | 152ms 145µs 757ns |
 
 # Configs and details
 DB's are installed in the VM itself to avoid networking delays.

@@ -40,8 +40,14 @@ github.com/pierrec/lz4/v4 v4.1.22 h1:cKFw6uJDK+/gfw5BcDL0JL5aBsAFdsIT18eRtLj7VIU
 github.com/pierrec/lz4/v4 v4.1.22/go.mod h1:gZWDp/Ze/IJXGXf23ltt2EXimqmTUXEy0GFuRQyBid4=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
+github.com/rah-0/hyperion v0.0.2 h1:haPw8xxlBDYorxALYIfStE64pw8tcsK9UGHEX2wpiiw=
+github.com/rah-0/hyperion v0.0.2/go.mod h1:te2zMwHWLNBnzMlXQYbS1FGYalBnYouumgBI02qqvWw=
+github.com/rah-0/nabu v0.0.4 h1:O5NiE/zp3hn01zcTsFwlDfIxwaEb9Uo6xL0V1LvKeo0=
+github.com/rah-0/nabu v0.0.4/go.mod h1:MCTYZOSPbh+wkJHyqqE699jD0ap3keq9rBuX9kq6FzQ=
 github.com/rah-0/parsort v1.3.1 h1:hzXjVonj3oVYho4cvX3DnqrYTEvn2UdBZ6sDyb7i9FY=
 github.com/rah-0/parsort v1.3.1/go.mod h1:f8jVY6fzCFWtQe2uum+4GydgzA/MTgjPATvYqR78ir4=
+github.com/rah-0/testmark v1.0.3 h1:atEz+nVvicl2H6yG8uswLVzOxlBI83cdB79dDDcGGjI=
+github.com/rah-0/testmark v1.0.3/go.mod h1:Pq7ko2/Ige3A7KDOlk7PDvAEdlXNAa15HVh9U/Hxy+E=
 github.com/redis/go-redis/v9 v9.7.0 h1:HhLSs+B6O021gwzl+locl0zEDnyNkxMtf/Z3NNBMa9E=
 github.com/redis/go-redis/v9 v9.7.0/go.mod h1:f6zhXITC7JUJIlPEiBOTXxJgPLdZcA93GewI7inzyWw=
 github.com/stretchr/testify v1.10.0 h1:Xv5erBjTwe/5IxqUQTdXv5kgmIvbHo3QQyRwhJsOfJA=
@@ -52,6 +58,8 @@ golang.org/x/exp v0.0.0-20180321215751-8460e604b9de/go.mod h1:CJ0aWSM057203Lf6IL
 golang.org/x/exp v0.0.0-20180807140117-3d87b88a115f/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
 golang.org/x/exp v0.0.0-20190125153040-c74c464bbbf2/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
 golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81/go.mod h1:ux5Hcp/YLpHSI86hEcLt0YII63i6oz57MZXIpbrjZUs=
+golang.org/x/mod v0.24.0 h1:ZfthKaKaT4NrhGVZHO1/WDTwGES4De8KtWO0SIbNJMU=
+golang.org/x/mod v0.24.0/go.mod h1:IXM97Txy2VM4PJ3gI61r1YEk/gAj6zAHN3AdZt6S9Ww=
 golang.org/x/tools v0.0.0-20180525024113-a5b4c53f6e8b/go.mod h1:n7NCudcB/nEzxVGmLbDWY5pfWTLqBcC2KZ6jyYvM4mQ=
 golang.org/x/tools v0.0.0-20190206041539-40960b6deb8e/go.mod h1:n7NCudcB/nEzxVGmLbDWY5pfWTLqBcC2KZ6jyYvM4mQ=
 golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 h1:E7g+9GITq07hpfrRu66IVDexMakfv52eLZ2CXBWiKr4=
