@@ -45,4 +45,4 @@ These are the tested categories so far:
 # ☕ Support
 If **benchmarks** helped you optimize your Go projects, consider showing your appreciation. Your support fuels further benchmarking adventures!
 
-[![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/default-orange.png)](https://www.buymeacoffee.com/rah.0)~~
+[![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/default-orange.png)](https://www.buymeacoffee.com/rah.0)
