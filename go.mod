@@ -14,7 +14,6 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.22
 	github.com/rah-0/hyperion v0.0.3
 	github.com/rah-0/parsort v1.3.1
-	github.com/rah-0/testmark v1.0.3
 	github.com/redis/go-redis/v9 v9.7.0
 	github.com/stretchr/testify v1.10.0
 	google.golang.org/protobuf v1.36.4
@@ -25,6 +24,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
+	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
 	github.com/jfcg/sixb v1.1.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rah-0/nabu v0.0.4 // indirect
