@@ -38,6 +38,7 @@ These are the tested categories so far:
 - [Compression](https://github.com/rah-0/benchmarks/tree/master/compression)
 - [DB](https://github.com/rah-0/benchmarks/tree/master/db)
 - [Encoding](https://github.com/rah-0/benchmarks/tree/master/encoding)
+- [Iteration](https://github.com/rah-0/benchmarks/tree/master/iteration)
 - [Meta](https://github.com/rah-0/benchmarks/tree/master/meta)
 - [Protocol](https://github.com/rah-0/benchmarks/tree/master/protocol)
 - [Serializer](https://github.com/rah-0/benchmarks/tree/master/serializer)
