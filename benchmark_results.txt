@@ -1,0 +1,31 @@
+goos: linux
+goarch: amd64
+pkg: github.com/rah-0/benchmarks/log
+cpu: AMD Ryzen 9 5950X 16-Core Processor            
+BenchmarkNabu_SimpleMessage-8        	 3296446	      1817 ns/op	     576 B/op	       8 allocs/op
+BenchmarkZerolog_SimpleMessage-8     	44737165	       135.0 ns/op	       0 B/op	       0 allocs/op
+BenchmarkZap_SimpleMessage-8         	21513151	       276.0 ns/op	       0 B/op	       0 allocs/op
+BenchmarkLogrus_SimpleMessage-8      	 4544463	      1318 ns/op	     873 B/op	      19 allocs/op
+BenchmarkSlog_SimpleMessage-8        	14915824	       405.1 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNabu_WithFields-8           	 2650898	      2263 ns/op	     824 B/op	      10 allocs/op
+BenchmarkZerolog_WithFields-8        	32480586	       182.4 ns/op	       0 B/op	       0 allocs/op
+BenchmarkZap_WithFields-8            	12639788	       493.2 ns/op	     192 B/op	       1 allocs/op
+BenchmarkLogrus_WithFields-8         	 2260081	      2454 ns/op	    1810 B/op	      29 allocs/op
+BenchmarkSlog_WithFields-8           	 8863416	       672.1 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNabu_Error-8                	 2264331	      2693 ns/op	    1032 B/op	      12 allocs/op
+BenchmarkZerolog_Error-8             	38406172	       155.1 ns/op	       0 B/op	       0 allocs/op
+BenchmarkZap_Error-8                 	15763070	       379.2 ns/op	      64 B/op	       1 allocs/op
+BenchmarkLogrus_Error-8              	 2970828	      2018 ns/op	    1685 B/op	      26 allocs/op
+BenchmarkSlog_Error-8                	10974009	       563.6 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNabu_ErrorWithFields-8      	 1921336	      3106 ns/op	    1345 B/op	      14 allocs/op
+BenchmarkZerolog_ErrorWithFields-8   	30160125	       196.2 ns/op	       0 B/op	       0 allocs/op
+BenchmarkZap_ErrorWithFields-8       	10939981	       547.8 ns/op	     256 B/op	       1 allocs/op
+BenchmarkLogrus_ErrorWithFields-8    	 2005862	      3006 ns/op	    2374 B/op	      35 allocs/op
+BenchmarkSlog_ErrorWithFields-8      	 7808354	       765.2 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNabu_ErrorChain-8           	  721411	      8155 ns/op	    2938 B/op	      32 allocs/op
+BenchmarkZerolog_ErrorChain-8        	11491810	       523.0 ns/op	       0 B/op	       0 allocs/op
+BenchmarkZap_ErrorChain-8            	 4770720	      1245 ns/op	     272 B/op	       4 allocs/op
+BenchmarkLogrus_ErrorChain-8         	  889046	      6857 ns/op	    5616 B/op	      85 allocs/op
+BenchmarkSlog_ErrorChain-8           	 3171907	      1925 ns/op	      64 B/op	       4 allocs/op
+PASS
+ok  	github.com/rah-0/benchmarks/log	181.858s

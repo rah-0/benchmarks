@@ -284,6 +284,7 @@ func BenchmarkNabu_ErrorChain(b *testing.B) {
 	defer restoreNabu()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
+		// nabu automatically correlates via UUID when wrapping errors
 		err1 := nabu.FromError(testError).WithMessage("database error").Log()
 		err2 := nabu.FromError(err1).WithMessage("service error").Log()
 		nabu.FromError(err2).WithMessage("handler error").Log()
@@ -294,9 +295,11 @@ func BenchmarkZerolog_ErrorChain(b *testing.B) {
 	logger := setupZerolog()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		logger.Error().Err(testError).Msg("database error")
-		logger.Error().Err(testError).Msg("service error")
-		logger.Error().Err(testError).Msg("handler error")
+		// Manually correlate using trace_id field
+		traceID := "trace-" + string(rune(i))
+		logger.Error().Str("trace_id", traceID).Err(testError).Msg("database error")
+		logger.Error().Str("trace_id", traceID).Msg("service error")
+		logger.Error().Str("trace_id", traceID).Msg("handler error")
 	}
 }
 
@@ -304,9 +307,11 @@ func BenchmarkZap_ErrorChain(b *testing.B) {
 	logger := setupZap()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		logger.Error("database error", zap.Error(testError))
-		logger.Error("service error", zap.Error(testError))
-		logger.Error("handler error", zap.Error(testError))
+		// Manually correlate using trace_id field
+		traceID := "trace-" + string(rune(i))
+		logger.Error("database error", zap.String("trace_id", traceID), zap.Error(testError))
+		logger.Error("service error", zap.String("trace_id", traceID))
+		logger.Error("handler error", zap.String("trace_id", traceID))
 	}
 }
 
@@ -314,9 +319,11 @@ func BenchmarkLogrus_ErrorChain(b *testing.B) {
 	logger := setupLogrus()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		logger.WithError(testError).Error("database error")
-		logger.WithError(testError).Error("service error")
-		logger.WithError(testError).Error("handler error")
+		// Manually correlate using trace_id field
+		traceID := "trace-" + string(rune(i))
+		logger.WithField("trace_id", traceID).WithError(testError).Error("database error")
+		logger.WithField("trace_id", traceID).Error("service error")
+		logger.WithField("trace_id", traceID).Error("handler error")
 	}
 }
 
@@ -324,8 +331,10 @@ func BenchmarkSlog_ErrorChain(b *testing.B) {
 	logger := setupSlog()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		logger.Error("database error", "error", testError)
-		logger.Error("service error", "error", testError)
-		logger.Error("handler error", "error", testError)
+		// Manually correlate using trace_id field
+		traceID := "trace-" + string(rune(i))
+		logger.Error("database error", "trace_id", traceID, "error", testError)
+		logger.Error("service error", "trace_id", traceID)
+		logger.Error("handler error", "trace_id", traceID)
 	}
 }

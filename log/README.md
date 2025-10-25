@@ -18,11 +18,11 @@ Basic log message without any fields.
 
 | Library  | ns/op   | B/op | allocs/op | Relative Speed |
 |----------|---------|------|-----------|----------------|
-| zerolog  | 131     | 0    | 0         | **1.00x** ⚡   |
-| zap      | 297     | 0    | 0         | 2.27x          |
-| slog     | 415     | 0    | 0         | 3.17x          |
-| logrus   | 1,402   | 873  | 19        | 10.72x         |
-| nabu     | 1,606   | 320  | 5         | 12.28x         |
+| zerolog  | 135     | 0    | 0         | **1.00x** ⚡   |
+| zap      | 276     | 0    | 0         | 2.04x          |
+| slog     | 405     | 0    | 0         | 3.00x          |
+| logrus   | 1,318   | 873  | 19        | 9.76x          |
+| nabu     | 1,817   | 576  | 8         | 13.46x         |
 
 ### 2. Message with Fields
 
@@ -30,11 +30,11 @@ Log message with 3 structured fields (userID, action, ip).
 
 | Library  | ns/op   | B/op  | allocs/op | Relative Speed |
 |----------|---------|-------|-----------|----------------|
-| zerolog  | 177     | 0     | 0         | **1.00x** ⚡   |
-| zap      | 517     | 192   | 1         | 2.92x          |
-| slog     | 730     | 0     | 0         | 4.12x          |
-| nabu     | 2,067   | 568   | 7         | 11.68x         |
-| logrus   | 2,669   | 1,810 | 29        | 15.08x         |
+| zerolog  | 182     | 0     | 0         | **1.00x** ⚡   |
+| zap      | 493     | 192   | 1         | 2.71x          |
+| slog     | 672     | 0     | 0         | 3.69x          |
+| nabu     | 2,263   | 824   | 10        | 12.43x         |
+| logrus   | 2,454   | 1,810 | 29        | 13.48x         |
 
 ### 3. Error Logging
 
@@ -42,11 +42,11 @@ Logging an error with a message.
 
 | Library  | ns/op   | B/op  | allocs/op | Relative Speed |
 |----------|---------|-------|-----------|----------------|
-| zerolog  | 162     | 0     | 0         | **1.00x** ⚡   |
-| zap      | 401     | 64    | 1         | 2.47x          |
-| slog     | 578     | 0     | 0         | 3.57x          |
-| logrus   | 2,268   | 1,685 | 26        | 14.00x         |
-| nabu     | 2,906   | 1,032 | 12        | 17.94x         |
+| zerolog  | 155     | 0     | 0         | **1.00x** ⚡   |
+| zap      | 379     | 64    | 1         | 2.45x          |
+| slog     | 564     | 0     | 0         | 3.64x          |
+| logrus   | 2,018   | 1,685 | 26        | 13.02x         |
+| nabu     | 2,693   | 1,032 | 12        | 17.37x         |
 
 ### 4. Error with Fields
 
@@ -54,23 +54,25 @@ Error logging with 3 additional structured fields.
 
 | Library  | ns/op   | B/op  | allocs/op | Relative Speed |
 |----------|---------|-------|-----------|----------------|
-| zerolog  | 208     | 0     | 0         | **1.00x** ⚡   |
-| zap      | 581     | 256   | 1         | 2.79x          |
-| slog     | 861     | 0     | 0         | 4.14x          |
-| nabu     | 3,353   | 1,345 | 14        | 16.12x         |
-| logrus   | 3,401   | 2,374 | 35        | 16.35x         |
+| zerolog  | 196     | 0     | 0         | **1.00x** ⚡   |
+| zap      | 548     | 256   | 1         | 2.80x          |
+| slog     | 765     | 0     | 0         | 3.90x          |
+| logrus   | 3,006   | 2,374 | 35        | 15.34x         |
+| nabu     | 3,106   | 1,345 | 14        | 15.85x         |
 
 ### 5. Error Chain (3 levels)
 
-Logging a chain of 3 related errors.
+Logging a chain of 3 related errors with correlation.
+- **nabu**: Automatic UUID correlation (built-in)
+- **others**: Manual trace_id field for correlation
 
 | Library  | ns/op   | B/op  | allocs/op | Relative Speed |
 |----------|---------|-------|-----------|----------------|
-| zerolog  | 491     | 0     | 0         | **1.00x** ⚡   |
-| zap      | 1,236   | 192   | 3         | 2.52x          |
-| slog     | 1,755   | 0     | 0         | 3.57x          |
-| logrus   | 6,864   | 5,056 | 78        | 13.98x         |
-| nabu     | 9,020   | 2,938 | 32        | 18.37x         |
+| zerolog  | 523     | 0     | 0         | **1.00x** ⚡   |
+| zap      | 1,245   | 272   | 4         | 2.38x          |
+| slog     | 1,925   | 64    | 4         | 3.68x          |
+| logrus   | 6,857   | 5,616 | 85        | 13.11x         |
+| nabu     | 8,155   | 2,938 | 32        | 15.59x         |
 
 ## Visual Performance Comparison
 
@@ -78,32 +80,32 @@ Logging a chain of 3 related errors.
 
 ```
 Simple Message:
-zerolog  ████ 131 ns/op
-zap      █████████ 297 ns/op
-slog     █████████████ 415 ns/op
-logrus   ████████████████████████████████████████████ 1,402 ns/op
-nabu     ██████████████████████████████████████████████████ 1,606 ns/op
+zerolog  ████ 135 ns/op
+zap      ████████ 276 ns/op
+slog     ████████████ 405 ns/op
+logrus   ███████████████████████████████████████ 1,318 ns/op
+nabu     ████████████████████████████████████████████████████ 1,817 ns/op
 
 With Fields:
-zerolog  █ 177 ns/op
-zap      ███ 517 ns/op
-slog     ████ 730 ns/op
-nabu     ████████████ 2,067 ns/op
-logrus   ███████████████ 2,669 ns/op
+zerolog  █ 182 ns/op
+zap      ███ 493 ns/op
+slog     ████ 672 ns/op
+nabu     ████████████ 2,263 ns/op
+logrus   █████████████ 2,454 ns/op
 
 Error Logging:
-zerolog  █ 162 ns/op
-zap      ██ 401 ns/op
-slog     ███ 578 ns/op
-logrus   ██████████████ 2,268 ns/op
-nabu     ██████████████████ 2,906 ns/op
+zerolog  █ 155 ns/op
+zap      ██ 379 ns/op
+slog     ███ 564 ns/op
+logrus   █████████████ 2,018 ns/op
+nabu     █████████████████ 2,693 ns/op
 
-Error Chain (3 levels):
-zerolog  ██ 491 ns/op
-zap      █████ 1,236 ns/op
-slog     ███████ 1,755 ns/op
-logrus   ██████████████████████████ 6,864 ns/op
-nabu     ███████████████████████████████████ 9,020 ns/op
+Error Chain (3 levels with correlation):
+zerolog  ██ 523 ns/op
+zap      █████ 1,245 ns/op
+slog     ███████ 1,925 ns/op
+logrus   ██████████████████████████ 6,857 ns/op
+nabu     ███████████████████████████████ 8,155 ns/op
 ```
 
 ### Memory Allocations (Lower is Better)
@@ -113,13 +115,13 @@ Simple Message:
 zerolog  ░ 0 B/op, 0 allocs
 zap      ░ 0 B/op, 0 allocs
 slog     ░ 0 B/op, 0 allocs
-nabu     ██ 320 B/op, 5 allocs
-logrus   ██████ 873 B/op, 19 allocs
+nabu     ███ 576 B/op, 8 allocs
+logrus   █████ 873 B/op, 19 allocs
 
-Error Chain:
+Error Chain (with correlation):
 zerolog  ░ 0 B/op, 0 allocs
-zap      █ 192 B/op, 3 allocs
-slog     ░ 0 B/op, 0 allocs
+slog     █ 64 B/op, 4 allocs
+zap      ██ 272 B/op, 4 allocs
 nabu     ████████ 2,938 B/op, 32 allocs
-logrus   ██████████████ 5,056 B/op, 78 allocs
+logrus   ███████████████ 5,616 B/op, 85 allocs
 ```
