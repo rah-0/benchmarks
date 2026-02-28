@@ -54,43 +54,78 @@ time="10s"
 # run_benchmark "BenchmarkPullChan_Parallel_10k"         "$time" "BenchmarkPullChan_Parallel_10k"         "./iteration"
 # run_benchmark "BenchmarkPullSlice_Parallel_10k"        "$time" "BenchmarkPullSlice_Parallel_10k"        "./iteration"
 
+# # ============================================================================
+# # LOGGING LIBRARY BENCHMARKS
+# # ============================================================================
+#
+# # Simple message logging
+# run_benchmark "BenchmarkNabu_SimpleMessage"    "$time" "BenchmarkNabu_SimpleMessage"    "./log"
+# run_benchmark "BenchmarkZerolog_SimpleMessage" "$time" "BenchmarkZerolog_SimpleMessage" "./log"
+# run_benchmark "BenchmarkZap_SimpleMessage"     "$time" "BenchmarkZap_SimpleMessage"     "./log"
+# run_benchmark "BenchmarkLogrus_SimpleMessage"  "$time" "BenchmarkLogrus_SimpleMessage"  "./log"
+# run_benchmark "BenchmarkSlog_SimpleMessage"    "$time" "BenchmarkSlog_SimpleMessage"    "./log"
+#
+# # Message with fields
+# run_benchmark "BenchmarkNabu_WithFields"    "$time" "BenchmarkNabu_WithFields"    "./log"
+# run_benchmark "BenchmarkZerolog_WithFields" "$time" "BenchmarkZerolog_WithFields" "./log"
+# run_benchmark "BenchmarkZap_WithFields"     "$time" "BenchmarkZap_WithFields"     "./log"
+# run_benchmark "BenchmarkLogrus_WithFields"  "$time" "BenchmarkLogrus_WithFields"  "./log"
+# run_benchmark "BenchmarkSlog_WithFields"    "$time" "BenchmarkSlog_WithFields"    "./log"
+#
+# # Error logging
+# run_benchmark "BenchmarkNabu_Error"    "$time" "BenchmarkNabu_Error"    "./log"
+# run_benchmark "BenchmarkZerolog_Error" "$time" "BenchmarkZerolog_Error" "./log"
+# run_benchmark "BenchmarkZap_Error"     "$time" "BenchmarkZap_Error"     "./log"
+# run_benchmark "BenchmarkLogrus_Error"  "$time" "BenchmarkLogrus_Error"  "./log"
+# run_benchmark "BenchmarkSlog_Error"    "$time" "BenchmarkSlog_Error"    "./log"
+#
+# # Error with fields
+# run_benchmark "BenchmarkNabu_ErrorWithFields"    "$time" "BenchmarkNabu_ErrorWithFields"    "./log"
+# run_benchmark "BenchmarkZerolog_ErrorWithFields" "$time" "BenchmarkZerolog_ErrorWithFields" "./log"
+# run_benchmark "BenchmarkZap_ErrorWithFields"     "$time" "BenchmarkZap_ErrorWithFields"     "./log"
+# run_benchmark "BenchmarkLogrus_ErrorWithFields"  "$time" "BenchmarkLogrus_ErrorWithFields"  "./log"
+# run_benchmark "BenchmarkSlog_ErrorWithFields"    "$time" "BenchmarkSlog_ErrorWithFields"    "./log"
+#
+# # Error chain
+# run_benchmark "BenchmarkNabu_ErrorChain"    "$time" "BenchmarkNabu_ErrorChain"    "./log"
+# run_benchmark "BenchmarkZerolog_ErrorChain" "$time" "BenchmarkZerolog_ErrorChain" "./log"
+# run_benchmark "BenchmarkZap_ErrorChain"     "$time" "BenchmarkZap_ErrorChain"     "./log"
+# run_benchmark "BenchmarkLogrus_ErrorChain"  "$time" "BenchmarkLogrus_ErrorChain"  "./log"
+# run_benchmark "BenchmarkSlog_ErrorChain"    "$time" "BenchmarkSlog_ErrorChain"    "./log"
+
 # ============================================================================
-# LOGGING LIBRARY BENCHMARKS
+# CONTENTION MECHANISM BENCHMARKS
 # ============================================================================
 
-# Simple message logging
-run_benchmark "BenchmarkNabu_SimpleMessage"    "$time" "BenchmarkNabu_SimpleMessage"    "./log"
-run_benchmark "BenchmarkZerolog_SimpleMessage" "$time" "BenchmarkZerolog_SimpleMessage" "./log"
-run_benchmark "BenchmarkZap_SimpleMessage"     "$time" "BenchmarkZap_SimpleMessage"     "./log"
-run_benchmark "BenchmarkLogrus_SimpleMessage"  "$time" "BenchmarkLogrus_SimpleMessage"  "./log"
-run_benchmark "BenchmarkSlog_SimpleMessage"    "$time" "BenchmarkSlog_SimpleMessage"    "./log"
+# Counters: Inc-Only (hot write contention)
+run_benchmark "BenchmarkCounters_IncOnly"   "$time" "BenchmarkCounters_IncOnly"   "./meta"
+# Counters: Get-Only (read contention)
+run_benchmark "BenchmarkCounters_GetOnly"   "$time" "BenchmarkCounters_GetOnly"   "./meta"
+# Counters: Mixed 90% Inc / 10% Get
+run_benchmark "BenchmarkCounters_Mixed90_10" "$time" "BenchmarkCounters_Mixed90_10" "./meta"
+# SPSC: Ring Buffer vs Channel baseline
+run_benchmark "BenchmarkSPSC"               "$time" "BenchmarkSPSC"               "./meta"
+# sync.Map vs MutexMap
+run_benchmark "BenchmarkMap_StoreOnly"      "$time" "BenchmarkMap_StoreOnly"      "./meta"
+run_benchmark "BenchmarkMap_LoadOnly"       "$time" "BenchmarkMap_LoadOnly"       "./meta"
+# Semaphore
+run_benchmark "BenchmarkSemaphore"          "$time" "BenchmarkSemaphore"          "./meta"
+# Spawn + WaitGroup (measures goroutine creation + scheduling + barrier)
+run_benchmark "BenchmarkSpawnAndWait"       "$time" "BenchmarkSpawnAndWait"       "./meta"
+# sync.Pool
+run_benchmark "BenchmarkPool"               "$time" "BenchmarkPool"               "./meta"
+# sync.Once
+run_benchmark "BenchmarkOnce"               "$time" "BenchmarkOnce"               "./meta"
 
-# Message with fields
-run_benchmark "BenchmarkNabu_WithFields"    "$time" "BenchmarkNabu_WithFields"    "./log"
-run_benchmark "BenchmarkZerolog_WithFields" "$time" "BenchmarkZerolog_WithFields" "./log"
-run_benchmark "BenchmarkZap_WithFields"     "$time" "BenchmarkZap_WithFields"     "./log"
-run_benchmark "BenchmarkLogrus_WithFields"  "$time" "BenchmarkLogrus_WithFields"  "./log"
-run_benchmark "BenchmarkSlog_WithFields"    "$time" "BenchmarkSlog_WithFields"    "./log"
+# ============================================================================
+# CONTENTION-REDUCTION ALGORITHM BENCHMARKS
+# ============================================================================
 
-# Error logging
-run_benchmark "BenchmarkNabu_Error"    "$time" "BenchmarkNabu_Error"    "./log"
-run_benchmark "BenchmarkZerolog_Error" "$time" "BenchmarkZerolog_Error" "./log"
-run_benchmark "BenchmarkZap_Error"     "$time" "BenchmarkZap_Error"     "./log"
-run_benchmark "BenchmarkLogrus_Error"  "$time" "BenchmarkLogrus_Error"  "./log"
-run_benchmark "BenchmarkSlog_Error"    "$time" "BenchmarkSlog_Error"    "./log"
-
-# Error with fields
-run_benchmark "BenchmarkNabu_ErrorWithFields"    "$time" "BenchmarkNabu_ErrorWithFields"    "./log"
-run_benchmark "BenchmarkZerolog_ErrorWithFields" "$time" "BenchmarkZerolog_ErrorWithFields" "./log"
-run_benchmark "BenchmarkZap_ErrorWithFields"     "$time" "BenchmarkZap_ErrorWithFields"     "./log"
-run_benchmark "BenchmarkLogrus_ErrorWithFields"  "$time" "BenchmarkLogrus_ErrorWithFields"  "./log"
-run_benchmark "BenchmarkSlog_ErrorWithFields"    "$time" "BenchmarkSlog_ErrorWithFields"    "./log"
-
-# Error chain
-run_benchmark "BenchmarkNabu_ErrorChain"    "$time" "BenchmarkNabu_ErrorChain"    "./log"
-run_benchmark "BenchmarkZerolog_ErrorChain" "$time" "BenchmarkZerolog_ErrorChain" "./log"
-run_benchmark "BenchmarkZap_ErrorChain"     "$time" "BenchmarkZap_ErrorChain"     "./log"
-run_benchmark "BenchmarkLogrus_ErrorChain"  "$time" "BenchmarkLogrus_ErrorChain"  "./log"
-run_benchmark "BenchmarkSlog_ErrorChain"    "$time" "BenchmarkSlog_ErrorChain"    "./log"
+# Reduction: Inc-Only (Sharded, PerCPU, FlatCombining, LocalBuffered, MPSC, RCU, Approx)
+run_benchmark "BenchmarkReduction_IncOnly"  "$time" "BenchmarkReduction_IncOnly"  "./meta"
+# Reduction: Get-Only (Sharded, PerCPU, RCU, Approx)
+run_benchmark "BenchmarkReduction_GetOnly"  "$time" "BenchmarkReduction_GetOnly"  "./meta"
+# Disruptor MPSC: multi-producer single-consumer throughput
+run_benchmark "BenchmarkDisruptorMPSC"      "$time" "BenchmarkDisruptorMPSC"      "./meta"
 
 rm ./*.test > /dev/null 2>&1
