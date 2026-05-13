@@ -52,3 +52,44 @@ func BenchmarkOzzoMultiFieldSomeInvalid(b *testing.B) {
 		_ = ozzoValidateAll(invalidUser)
 	}
 }
+
+// --- Full cycle: validate + inspect results ---
+
+func BenchmarkOzzoFullCycleSingleFieldValid(b *testing.B) {
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = ozzoValidateEmail(validUser.Email) == nil
+	}
+}
+
+func BenchmarkOzzoFullCycleSingleFieldInvalid(b *testing.B) {
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if err := ozzoValidateEmail(invalidUser.Email); err != nil {
+			_ = err.Error()
+		}
+	}
+}
+
+func BenchmarkOzzoFullCycleMultiFieldAllValid(b *testing.B) {
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = ozzoValidateAll(validUser) == nil
+	}
+}
+
+func BenchmarkOzzoFullCycleMultiFieldSomeInvalid(b *testing.B) {
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if err := ozzoValidateAll(invalidUser); err != nil {
+			for field, e := range err.(validation.Errors) {
+				_ = field
+				_ = e.Error()
+			}
+		}
+	}
+}

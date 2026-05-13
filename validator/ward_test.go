@@ -90,3 +90,75 @@ func BenchmarkWardMultiFieldStopOnFail(b *testing.B) {
 		v.Reset()
 	}
 }
+
+// --- Full cycle: validate + inspect results ---
+
+func BenchmarkWardFullCycleSingleFieldValid(b *testing.B) {
+	v := wardvalidator.New()
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		form.Email = validUser.Email
+		v.Add(wardEmail)
+		v.Run()
+		_ = v.HasFailures()
+		v.Reset()
+	}
+}
+
+func BenchmarkWardFullCycleSingleFieldInvalid(b *testing.B) {
+	v := wardvalidator.New()
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		form.Email = invalidUser.Email
+		v.Add(wardEmail)
+		v.Run()
+		if v.HasFailures() {
+			for _, f := range v.Failures() {
+				_ = f.FieldName
+				_ = f.RuleID
+			}
+		}
+		v.Reset()
+	}
+}
+
+func BenchmarkWardFullCycleMultiFieldAllValid(b *testing.B) {
+	v := wardvalidator.New()
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		form = validUser
+		v.Add(wardEmail)
+		v.Add(wardUsername)
+		v.Add(wardPassword)
+		v.Add(wardAge)
+		v.Add(wardWebsite)
+		v.Run()
+		_ = v.HasFailures()
+		v.Reset()
+	}
+}
+
+func BenchmarkWardFullCycleMultiFieldSomeInvalid(b *testing.B) {
+	v := wardvalidator.New()
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		form = invalidUser
+		v.Add(wardEmail)
+		v.Add(wardUsername)
+		v.Add(wardPassword)
+		v.Add(wardAge)
+		v.Add(wardWebsite)
+		v.Run()
+		if v.HasFailures() {
+			for _, f := range v.Failures() {
+				_ = f.FieldName
+				_ = f.RuleID
+			}
+		}
+		v.Reset()
+	}
+}

@@ -61,3 +61,55 @@ func BenchmarkPlaygroundMultiFieldSomeInvalid(b *testing.B) {
 		_ = v.Struct(pgLoad(invalidUser))
 	}
 }
+
+// --- Full cycle: validate + inspect results ---
+
+func BenchmarkPlaygroundFullCycleSingleFieldValid(b *testing.B) {
+	v := validator.New()
+	s := pgEmailForm{}
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		s.Email = validUser.Email
+		_ = v.Struct(s) == nil
+	}
+}
+
+func BenchmarkPlaygroundFullCycleSingleFieldInvalid(b *testing.B) {
+	v := validator.New()
+	s := pgEmailForm{}
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		s.Email = invalidUser.Email
+		if err := v.Struct(s); err != nil {
+			for _, e := range err.(validator.ValidationErrors) {
+				_ = e.Field()
+				_ = e.Tag()
+			}
+		}
+	}
+}
+
+func BenchmarkPlaygroundFullCycleMultiFieldAllValid(b *testing.B) {
+	v := validator.New()
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = v.Struct(pgLoad(validUser)) == nil
+	}
+}
+
+func BenchmarkPlaygroundFullCycleMultiFieldSomeInvalid(b *testing.B) {
+	v := validator.New()
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if err := v.Struct(pgLoad(invalidUser)); err != nil {
+			for _, e := range err.(validator.ValidationErrors) {
+				_ = e.Field()
+				_ = e.Tag()
+			}
+		}
+	}
+}
