@@ -24,22 +24,20 @@ func pgLoad(u UserForm) pgUserForm {
 
 func BenchmarkPlaygroundSingleFieldValid(b *testing.B) {
 	v := validator.New()
-	s := pgEmailForm{}
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		s.Email = validUser.Email
+		s := pgEmailForm{Email: validUser.Email}
 		_ = v.Struct(s)
 	}
 }
 
 func BenchmarkPlaygroundSingleFieldInvalid(b *testing.B) {
 	v := validator.New()
-	s := pgEmailForm{}
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		s.Email = invalidUser.Email
+		s := pgEmailForm{Email: invalidUser.Email}
 		_ = v.Struct(s)
 	}
 }
@@ -66,22 +64,20 @@ func BenchmarkPlaygroundMultiFieldSomeInvalid(b *testing.B) {
 
 func BenchmarkPlaygroundFullCycleSingleFieldValid(b *testing.B) {
 	v := validator.New()
-	s := pgEmailForm{}
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		s.Email = validUser.Email
+		s := pgEmailForm{Email: validUser.Email}
 		_ = v.Struct(s) == nil
 	}
 }
 
 func BenchmarkPlaygroundFullCycleSingleFieldInvalid(b *testing.B) {
 	v := validator.New()
-	s := pgEmailForm{}
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		s.Email = invalidUser.Email
+		s := pgEmailForm{Email: invalidUser.Email}
 		if err := v.Struct(s); err != nil {
 			for _, e := range err.(validator.ValidationErrors) {
 				_ = e.Field()
