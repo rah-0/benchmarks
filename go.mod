@@ -1,6 +1,6 @@
 module github.com/rah-0/benchmarks
 
-go 1.26.2
+go 1.27.1
 
 require (
 	github.com/andybalholm/brotli v1.2.1
@@ -16,6 +16,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.44
 	github.com/pierrec/lz4/v4 v4.1.26
 	github.com/rah-0/parsort v1.3.1
+	github.com/rah-0/slogx v0.3.1
 	github.com/rah-0/ward v0.0.5
 	github.com/redis/go-redis/v9 v9.19.0
 	github.com/rs/zerolog v1.34.0

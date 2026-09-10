@@ -1,0 +1,44 @@
+# https://vector.dev/docs/reference/configuration/sinks/http/
+# Disk buffers synchronize every 500 ms; this is not per-record fsync.
+data_dir = "/data"
+
+[sources.input]
+type = "stdin"
+log_namespace = true
+
+[sources.input.decoding]
+codec = "json"
+
+[sources.input.framing]
+method = "newline_delimited"
+
+[sinks.http]
+type = "http"
+inputs = ["input"]
+uri = __ENDPOINT__
+compression = "none"
+
+[sinks.http.encoding]
+codec = "json"
+
+[sinks.http.framing]
+method = "newline_delimited"
+
+[sinks.http.batch]
+max_events = 500
+max_bytes = 4194304
+timeout_secs = 0.1
+
+[sinks.http.buffer]
+type = "disk"
+max_size = 536870912
+when_full = "block"
+
+[sinks.http.request]
+concurrency = 1
+retry_initial_backoff_secs = 1
+retry_max_duration_secs = 1
+retry_jitter_mode = "None"
+
+[sinks.http.healthcheck]
+enabled = false

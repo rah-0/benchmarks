@@ -69,6 +69,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rah-0/parsort v1.3.1 h1:hzXjVonj3oVYho4cvX3DnqrYTEvn2UdBZ6sDyb7i9FY=
 github.com/rah-0/parsort v1.3.1/go.mod h1:f8jVY6fzCFWtQe2uum+4GydgzA/MTgjPATvYqR78ir4=
+github.com/rah-0/slogx v0.3.1 h1:cFZi+ekbsgt2N9GRspPaKduhjdIo+/Ucdyd0mnQCaOI=
+github.com/rah-0/slogx v0.3.1/go.mod h1:SZOe6O/1I29XsX0u2+HJ2jnSikYN/+Pv1MX/fVsMTcs=
 github.com/rah-0/ward v0.0.5 h1:nBMbgPdlWKn9ZaKk43FIvuOnJu8YfhnROAiYGacZCOg=
 github.com/rah-0/ward v0.0.5/go.mod h1:JywrZmpoX0y11VVoMauFfjhpFXM7uYnKP0pjmFbwpoA=
 github.com/redis/go-redis/v9 v9.19.0 h1:XPVaaPSnG6RhYf7p+rmSa9zZfeVAnWsH5h3lxthOm/k=

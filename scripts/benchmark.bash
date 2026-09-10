@@ -63,30 +63,35 @@ time="10s"
 # run_benchmark "BenchmarkZap_SimpleMessage"     "$time" "BenchmarkZap_SimpleMessage"     "./log"
 # run_benchmark "BenchmarkLogrus_SimpleMessage"  "$time" "BenchmarkLogrus_SimpleMessage"  "./log"
 # run_benchmark "BenchmarkSlog_SimpleMessage"    "$time" "BenchmarkSlog_SimpleMessage"    "./log"
+# run_benchmark "BenchmarkSlogx_SimpleMessage"    "$time" "BenchmarkSlogx_SimpleMessage"    "./log"
 #
 # # Message with fields
 # run_benchmark "BenchmarkZerolog_WithFields" "$time" "BenchmarkZerolog_WithFields" "./log"
 # run_benchmark "BenchmarkZap_WithFields"     "$time" "BenchmarkZap_WithFields"     "./log"
 # run_benchmark "BenchmarkLogrus_WithFields"  "$time" "BenchmarkLogrus_WithFields"  "./log"
 # run_benchmark "BenchmarkSlog_WithFields"    "$time" "BenchmarkSlog_WithFields"    "./log"
+# run_benchmark "BenchmarkSlogx_WithFields"    "$time" "BenchmarkSlogx_WithFields"    "./log"
 #
 # # Error logging
 # run_benchmark "BenchmarkZerolog_Error" "$time" "BenchmarkZerolog_Error" "./log"
 # run_benchmark "BenchmarkZap_Error"     "$time" "BenchmarkZap_Error"     "./log"
 # run_benchmark "BenchmarkLogrus_Error"  "$time" "BenchmarkLogrus_Error"  "./log"
 # run_benchmark "BenchmarkSlog_Error"    "$time" "BenchmarkSlog_Error"    "./log"
+# run_benchmark "BenchmarkSlogx_Error"    "$time" "BenchmarkSlogx_Error"    "./log"
 #
 # # Error with fields
 # run_benchmark "BenchmarkZerolog_ErrorWithFields" "$time" "BenchmarkZerolog_ErrorWithFields" "./log"
 # run_benchmark "BenchmarkZap_ErrorWithFields"     "$time" "BenchmarkZap_ErrorWithFields"     "./log"
 # run_benchmark "BenchmarkLogrus_ErrorWithFields"  "$time" "BenchmarkLogrus_ErrorWithFields"  "./log"
 # run_benchmark "BenchmarkSlog_ErrorWithFields"    "$time" "BenchmarkSlog_ErrorWithFields"    "./log"
+# run_benchmark "BenchmarkSlogx_ErrorWithFields"    "$time" "BenchmarkSlogx_ErrorWithFields"    "./log"
 #
 # # Error chain
 # run_benchmark "BenchmarkZerolog_ErrorChain" "$time" "BenchmarkZerolog_ErrorChain" "./log"
 # run_benchmark "BenchmarkZap_ErrorChain"     "$time" "BenchmarkZap_ErrorChain"     "./log"
 # run_benchmark "BenchmarkLogrus_ErrorChain"  "$time" "BenchmarkLogrus_ErrorChain"  "./log"
 # run_benchmark "BenchmarkSlog_ErrorChain"    "$time" "BenchmarkSlog_ErrorChain"    "./log"
+# run_benchmark "BenchmarkSlogx_ErrorChain"    "$time" "BenchmarkSlogx_ErrorChain"    "./log"
 
 # ============================================================================
 # CONTENTION MECHANISM BENCHMARKS

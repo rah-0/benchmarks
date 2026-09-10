@@ -1,50 +1,32 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/rah-0/benchmarks)](https://goreportcard.com/report/github.com/rah-0/benchmarks)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-<a href="https://www.buymeacoffee.com/rah.0" target="_blank">
-  <img src="https://cdn.buymeacoffee.com/buttons/v2/arial-orange.png" alt="Buy Me A Coffee" height="50" style="height:50px;">
-</a>
-
 # Benchmarks
-These benchmarks are executed on a Virtual Machine.  
-The aim of benching is to see what's faster while using the least amount of memory possible and also fewer allocs.
 
-## About the main system
-**CPU**
-- AMD Ryzen 9 5950X
-- Precision Boost Overdrive (PBO) Enabled
-- Maximum Clocks (all cores): 5GHz
-- Voltage Average: 1.40V
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**RAM**
-- DDR4
-- 64GB (4x16GB) 
-- XMP Enabled
-- System Memory Multiplier: 36
-- FCLK Frequency: 1800MHz
-- CL19
-- Voltage: 1.40V
+Go benchmarks comparing execution time, throughput, memory use, and allocations
+across libraries and common application workloads.
 
-## About the VM
-CPU: 8 threads  
-RAM: 16GB  
-OS: Debian 12, Kernel: 6.1.0-23-amd64  
-NIC: 1GB
+Requires **Go 1.27.1 or later**. See each category for results and methodology;
+requirements and measurement environments vary by suite.
 
+## Categories
 
-# Categories
-These are the tested categories so far:
-- [Cache](https://github.com/rah-0/benchmarks/tree/master/cache)
-- [Compression](https://github.com/rah-0/benchmarks/tree/master/compression)
-- [DB](https://github.com/rah-0/benchmarks/tree/master/db)
-- [Encoding](https://github.com/rah-0/benchmarks/tree/master/encoding)
-- [Iteration](https://github.com/rah-0/benchmarks/tree/master/iteration)
-- [Log](https://github.com/rah-0/benchmarks/tree/master/log)
-- [Meta](https://github.com/rah-0/benchmarks/tree/master/meta)
-- [Protocol](https://github.com/rah-0/benchmarks/tree/master/protocol)
-- [Serializer](https://github.com/rah-0/benchmarks/tree/master/serializer)
+| Category | Benchmarks |
+| --- | --- |
+| [Cache](cache) | Redis and Memcached |
+| [Collectors](collectors) | slogx-collector, Vector, and Fluent Bit delivery and outage recovery |
+| [Compression](compression) | Brotli, Gzip, and LZ4 |
+| [Cryptography](crypto) | JWT signing and verification; AES encryption and decryption |
+| [Databases](db) | SQLite, MariaDB, and PostgreSQL |
+| [Encoding](encoding) | Base64 and Base85 |
+| [Iteration](iteration) | Slice and channel iterator adapters |
+| [Logging](log) | Structured logging, context enrichment, spans, and errors |
+| [Meta](meta) | Reflection, sorting, and synchronization |
+| [Protocols](protocol) | Local HTTP and TCP transport |
+| [Serialization](serializer) | JSON, Gob, and Protocol Buffers |
+| [Validation](validator) | Ward, go-playground/validator, and ozzo-validation |
 
-# ☕ Support
-If **benchmarks** helped you optimize your Go projects, consider showing your appreciation. Your support fuels further benchmarking adventures!
+## Support
+
+If these benchmarks are useful to you, consider supporting the project.
 
 [![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/default-orange.png)](https://www.buymeacoffee.com/rah.0)

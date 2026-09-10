@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/rah-0/slogx"
 	"github.com/rs/zerolog"
 	"github.com/sirupsen/logrus"
 	"go.uber.org/zap"
@@ -53,4 +54,14 @@ func main() {
 	slogLogger.Error("database error", "trace_id", traceID, "error", testError)
 	slogLogger.Error("service error", "trace_id", traceID)
 	slogLogger.Error("handler error", "trace_id", traceID)
+
+	println("\n=== SLOGX: Manual trace_id Correlation ===")
+	slogxLogger := slogx.New(slogx.Options{
+		Format: slogx.JSON,
+		Level:  slog.LevelInfo,
+		Writer: os.Stdout,
+	})
+	slogxLogger.Error("database error", "trace_id", traceID, "error", testError)
+	slogxLogger.Error("service error", "trace_id", traceID)
+	slogxLogger.Error("handler error", "trace_id", traceID)
 }
