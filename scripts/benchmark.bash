@@ -1,131 +1,64 @@
-#!/bin/bash
-go install github.com/rah-0/testmark@latest
+#!/usr/bin/env bash
+set -euo pipefail
+umask 077
 
-# Function to run benchmarks on a specific function and generate profiling outputs
-run_benchmark() {
-  local profile_name="$1"  # Name for pprof output files (e.g., "custom_profile")
-  local bench_time="$2"    # Benchmark duration (e.g., "5s", "60s")
-  local bench_target="$3"  # Specific benchmark function (e.g., "BenchmarkMyFunction")
-  local bench_dir="$4"     # Directory for go test
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+output_dir="${1:-results}"
+mkdir -p "$output_dir"
+output_dir="$(cd "$output_dir" && pwd)"
+destination="$output_dir"
+# Keep unrestricted diagnostics outside the checkout. Only sanitized, complete
+# matrices are copied to the publication directory.
+output_dir="$(mktemp -d /tmp/benchmark-results.XXXXXXXX)"
+bench_time="${BENCHTIME:-1s}"
+bench_count="${BENCHCOUNT:-3}"
+export GOGC=100 GOMEMLIMIT=off
+storage_dir="$(mktemp -d "${BENCH_STORAGE_ROOT:-/var/tmp}/benchmarks.XXXXXXXX")"
+trap 'rm -rf -- "$storage_dir"; if [[ -d "$output_dir" ]]; then printf "Private diagnostics retained in %s\n" "$output_dir" >&2; fi' EXIT
+export TMPDIR="$storage_dir"
+report_tool="$storage_dir/benchmark-results"
+go build -trimpath -o "$report_tool" ./scripts/benchmarks
 
-  local mem_profile="./pprof_svg/${profile_name}_mem.out"
-  local cpu_profile="./pprof_svg/${profile_name}_cpu.out"
-  local mem_svg="./pprof_svg/${profile_name}_mem.svg"
-  local cpu_svg="./pprof_svg/${profile_name}_cpu.svg"
+{
+  date -u +'%Y-%m-%dT%H:%M:%SZ'
+  go version
+  uname -srmo
+  command -v lscpu >/dev/null && lscpu
+  go env GOOS GOARCH GOAMD64 CGO_ENABLED GOEXPERIMENT GOTOOLCHAIN
+  printf 'BENCHTIME=%s\nBENCHCOUNT=%s\nGOMAXPROCS=%s\nGOGC=%s\nGOMEMLIMIT=%s\n' \
+    "$bench_time" "$bench_count" "${GOMAXPROCS:-default}" "$GOGC" "$GOMEMLIMIT"
+  docker version --format 'Docker server: {{.Server.Version}}'
+  findmnt -T "$storage_dir" -no FSTYPE
+} > "$output_dir/environment.txt"
+go list -m all > "$output_dir/modules.txt"
+go -C collectors list -m all > "$output_dir/collectors-modules.txt"
+"$report_tool" manifest "$output_dir/source.sha256"
 
-  mkdir -p ./pprof_svg
+# One package at a time keeps suites from competing for CPU, memory, or disk.
+# Database and cache TestMain functions provision and release their containers.
+for package in cache compression crypto/encrypt crypto/sign db/mariadb \
+  db/postgresql db/sqlite encoding iteration meta protocol/http protocol/tcp \
+  serializer validator; do
+  printf 'Benchmarking %s\n' "$package"
+  go test -p=1 -run '^$' -bench . -benchmem -benchtime="$bench_time" \
+    -count="$bench_count" -timeout=2h "./$package" \
+    > "$output_dir/${package//\//-}.txt" 2>&1
+done
 
-  go test -run=^$ -bench="^${bench_target}$" -benchmem "${bench_dir}" -benchtime="${bench_time}" -timeout=0 \
-    -memprofile="${mem_profile}" -cpuprofile="${cpu_profile}" | testmark | grep -E '^Benchmark'
+# Logging is serial; retain the established five-sample, one-CPU methodology.
+printf 'Benchmarking log\n'
+GOMAXPROCS=1 taskset -c "${LOG_CPU:-0}" \
+  go test -p=1 -run '^$' -bench . -benchmem -benchtime="$bench_time" \
+    -count=5 -cpu=1 -timeout=30m ./log > "$output_dir/log.txt" 2>&1
 
-  go tool pprof -svg -output="${mem_svg}" "${mem_profile}" >/dev/null 2>&1
-  go tool pprof -svg -output="${cpu_svg}" "${cpu_profile}" >/dev/null 2>&1
-}
-
-rm -rf ./pprof_svg/*
-
-# Example usage:
-time="10s"
-
-# # Full consume
-# run_benchmark "BenchmarkPullChan_Full_100k"            "$time" "BenchmarkPullChan_Full_100k"            "./iteration"
-# run_benchmark "BenchmarkPullSlice_Full_100k"           "$time" "BenchmarkPullSlice_Full_100k"           "./iteration"
-# run_benchmark "BenchmarkBaseline_ChanDirect_Full_100k" "$time" "BenchmarkBaseline_ChanDirect_Full_100k" "./iteration"
-# run_benchmark "BenchmarkBaseline_SliceDirect_Full_100k""$time" "BenchmarkBaseline_SliceDirect_Full_100k" "./iteration"
-# # Early close
-# run_benchmark "BenchmarkPullChan_EarlyClose10_100k"    "$time" "BenchmarkPullChan_EarlyClose10_100k"    "./iteration"
-# run_benchmark "BenchmarkPullSlice_EarlyClose10_100k"   "$time" "BenchmarkPullSlice_EarlyClose10_100k"   "./iteration"
-# # Time to first row
-# run_benchmark "BenchmarkPullChan_TTFR_1M"              "$time" "BenchmarkPullChan_TTFR_1M"              "./iteration"
-# run_benchmark "BenchmarkPullSlice_TTFR_1M"             "$time" "BenchmarkPullSlice_TTFR_1M"             "./iteration"
-# # Slow consumer
-# run_benchmark "BenchmarkPullChan_SlowConsumerWork50_100k"  "$time" "BenchmarkPullChan_SlowConsumerWork50_100k"  "./iteration"
-# run_benchmark "BenchmarkPullSlice_SlowConsumerWork50_100k" "$time" "BenchmarkPullSlice_SlowConsumerWork50_100k" "./iteration"
-# # Slow producer
-# run_benchmark "BenchmarkPullChan_SlowProducerWork50_100k"  "$time" "BenchmarkPullChan_SlowProducerWork50_100k"  "./iteration"
-# run_benchmark "BenchmarkPullSlice_SlowProducerWork50_100k" "$time" "BenchmarkPullSlice_SlowProducerWork50_100k" "./iteration"
-# # Multi-range
-# run_benchmark "BenchmarkPullChan_MultiRange_100k_10parts"  "$time" "BenchmarkPullChan_MultiRange_100k_10parts"  "./iteration"
-# run_benchmark "BenchmarkPullSlice_MultiRange_100k_10parts" "$time" "BenchmarkPullSlice_MultiRange_100k_10parts" "./iteration"
-# # Empty ranges
-# run_benchmark "BenchmarkPullChan_EmptyRange"           "$time" "BenchmarkPullChan_EmptyRange"           "./iteration"
-# run_benchmark "BenchmarkPullSlice_EmptyRange"          "$time" "BenchmarkPullSlice_EmptyRange"          "./iteration"
-# # Parallel
-# run_benchmark "BenchmarkPullChan_Parallel_10k"         "$time" "BenchmarkPullChan_Parallel_10k"         "./iteration"
-# run_benchmark "BenchmarkPullSlice_Parallel_10k"        "$time" "BenchmarkPullSlice_Parallel_10k"        "./iteration"
-
-# # ============================================================================
-# # LOGGING LIBRARY BENCHMARKS
-# # ============================================================================
-#
-# # Simple message logging
-# run_benchmark "BenchmarkZerolog_SimpleMessage" "$time" "BenchmarkZerolog_SimpleMessage" "./log"
-# run_benchmark "BenchmarkZap_SimpleMessage"     "$time" "BenchmarkZap_SimpleMessage"     "./log"
-# run_benchmark "BenchmarkLogrus_SimpleMessage"  "$time" "BenchmarkLogrus_SimpleMessage"  "./log"
-# run_benchmark "BenchmarkSlog_SimpleMessage"    "$time" "BenchmarkSlog_SimpleMessage"    "./log"
-# run_benchmark "BenchmarkSlogx_SimpleMessage"    "$time" "BenchmarkSlogx_SimpleMessage"    "./log"
-#
-# # Message with fields
-# run_benchmark "BenchmarkZerolog_WithFields" "$time" "BenchmarkZerolog_WithFields" "./log"
-# run_benchmark "BenchmarkZap_WithFields"     "$time" "BenchmarkZap_WithFields"     "./log"
-# run_benchmark "BenchmarkLogrus_WithFields"  "$time" "BenchmarkLogrus_WithFields"  "./log"
-# run_benchmark "BenchmarkSlog_WithFields"    "$time" "BenchmarkSlog_WithFields"    "./log"
-# run_benchmark "BenchmarkSlogx_WithFields"    "$time" "BenchmarkSlogx_WithFields"    "./log"
-#
-# # Error logging
-# run_benchmark "BenchmarkZerolog_Error" "$time" "BenchmarkZerolog_Error" "./log"
-# run_benchmark "BenchmarkZap_Error"     "$time" "BenchmarkZap_Error"     "./log"
-# run_benchmark "BenchmarkLogrus_Error"  "$time" "BenchmarkLogrus_Error"  "./log"
-# run_benchmark "BenchmarkSlog_Error"    "$time" "BenchmarkSlog_Error"    "./log"
-# run_benchmark "BenchmarkSlogx_Error"    "$time" "BenchmarkSlogx_Error"    "./log"
-#
-# # Error with fields
-# run_benchmark "BenchmarkZerolog_ErrorWithFields" "$time" "BenchmarkZerolog_ErrorWithFields" "./log"
-# run_benchmark "BenchmarkZap_ErrorWithFields"     "$time" "BenchmarkZap_ErrorWithFields"     "./log"
-# run_benchmark "BenchmarkLogrus_ErrorWithFields"  "$time" "BenchmarkLogrus_ErrorWithFields"  "./log"
-# run_benchmark "BenchmarkSlog_ErrorWithFields"    "$time" "BenchmarkSlog_ErrorWithFields"    "./log"
-# run_benchmark "BenchmarkSlogx_ErrorWithFields"    "$time" "BenchmarkSlogx_ErrorWithFields"    "./log"
-#
-# # Error chain
-# run_benchmark "BenchmarkZerolog_ErrorChain" "$time" "BenchmarkZerolog_ErrorChain" "./log"
-# run_benchmark "BenchmarkZap_ErrorChain"     "$time" "BenchmarkZap_ErrorChain"     "./log"
-# run_benchmark "BenchmarkLogrus_ErrorChain"  "$time" "BenchmarkLogrus_ErrorChain"  "./log"
-# run_benchmark "BenchmarkSlog_ErrorChain"    "$time" "BenchmarkSlog_ErrorChain"    "./log"
-# run_benchmark "BenchmarkSlogx_ErrorChain"    "$time" "BenchmarkSlogx_ErrorChain"    "./log"
-
-# ============================================================================
-# CONTENTION MECHANISM BENCHMARKS
-# ============================================================================
-
-# Counters: Inc-Only (hot write contention)
-run_benchmark "BenchmarkCounters_IncOnly"   "$time" "BenchmarkCounters_IncOnly"   "./meta"
-# Counters: Get-Only (read contention)
-run_benchmark "BenchmarkCounters_GetOnly"   "$time" "BenchmarkCounters_GetOnly"   "./meta"
-# Counters: Mixed 90% Inc / 10% Get
-run_benchmark "BenchmarkCounters_Mixed90_10" "$time" "BenchmarkCounters_Mixed90_10" "./meta"
-# SPSC: Ring Buffer vs Channel baseline
-run_benchmark "BenchmarkSPSC"               "$time" "BenchmarkSPSC"               "./meta"
-# sync.Map vs MutexMap
-run_benchmark "BenchmarkMap_StoreOnly"      "$time" "BenchmarkMap_StoreOnly"      "./meta"
-run_benchmark "BenchmarkMap_LoadOnly"       "$time" "BenchmarkMap_LoadOnly"       "./meta"
-# Semaphore
-run_benchmark "BenchmarkSemaphore"          "$time" "BenchmarkSemaphore"          "./meta"
-# Spawn + WaitGroup (measures goroutine creation + scheduling + barrier)
-run_benchmark "BenchmarkSpawnAndWait"       "$time" "BenchmarkSpawnAndWait"       "./meta"
-# sync.Pool
-run_benchmark "BenchmarkPool"               "$time" "BenchmarkPool"               "./meta"
-# sync.Once
-run_benchmark "BenchmarkOnce"               "$time" "BenchmarkOnce"               "./meta"
-
-# ============================================================================
-# CONTENTION-REDUCTION ALGORITHM BENCHMARKS
-# ============================================================================
-
-# Reduction: Inc-Only (Sharded, PerCPU, FlatCombining, LocalBuffered, MPSC, RCU, Approx)
-run_benchmark "BenchmarkReduction_IncOnly"  "$time" "BenchmarkReduction_IncOnly"  "./meta"
-# Reduction: Get-Only (Sharded, PerCPU, RCU, Approx)
-run_benchmark "BenchmarkReduction_GetOnly"  "$time" "BenchmarkReduction_GetOnly"  "./meta"
-# Disruptor MPSC: multi-producer single-consumer throughput
-run_benchmark "BenchmarkDisruptorMPSC"      "$time" "BenchmarkDisruptorMPSC"      "./meta"
-
-rm ./*.test > /dev/null 2>&1
+# Collector buffers must use persistent storage, not the output directory's FS.
+printf 'Benchmarking collectors: healthy delivery\n'
+taskset -c "${HARNESS_CPU:-2}" go -C collectors run . \
+  -cpu="${COLLECTOR_CPU:-0}" > "$output_dir/healthy.jsonl"
+printf 'Benchmarking collectors: two-second outage\n'
+taskset -c "${HARNESS_CPU:-2}" go -C collectors run . \
+  -cpu="${COLLECTOR_CPU:-0}" -outage=2s > "$output_dir/outage.jsonl"
+"$report_tool" sanitize "$output_dir"
+mv -- "$output_dir"/* "$destination/"
+rmdir -- "$output_dir"
+printf 'Complete. Results: %s\n' "$destination"

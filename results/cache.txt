@@ -1,0 +1,60 @@
+goos: linux
+goarch: amd64
+pkg: github.com/rah-0/benchmarks/cache
+cpu: AMD Ryzen 9 5900HX with Radeon Graphics        
+BenchmarkMemcache2KB-16      	    7772	    154969 ns/op	    6640 B/op	      10 allocs/op
+BenchmarkMemcache2KB-16      	    7888	    153294 ns/op	    6651 B/op	      10 allocs/op
+BenchmarkMemcache2KB-16      	    7804	    154285 ns/op	    6656 B/op	      10 allocs/op
+BenchmarkMemcache4KB-16      	    6744	    173622 ns/op	   13319 B/op	      10 allocs/op
+BenchmarkMemcache4KB-16      	    6825	    173677 ns/op	   13319 B/op	      10 allocs/op
+BenchmarkMemcache4KB-16      	    6854	    175719 ns/op	   13319 B/op	      10 allocs/op
+BenchmarkMemcache8KB-16      	    6367	    180402 ns/op	   26134 B/op	      10 allocs/op
+BenchmarkMemcache8KB-16      	    6572	    178664 ns/op	   26135 B/op	      10 allocs/op
+BenchmarkMemcache8KB-16      	    6553	    179530 ns/op	   26135 B/op	      10 allocs/op
+BenchmarkMemcache16KB-16     	    6036	    190097 ns/op	   51508 B/op	      10 allocs/op
+BenchmarkMemcache16KB-16     	    5716	    192252 ns/op	   51509 B/op	      10 allocs/op
+BenchmarkMemcache16KB-16     	    6058	    191207 ns/op	   51507 B/op	      10 allocs/op
+BenchmarkMemcache32KB-16     	    5215	    207620 ns/op	  106866 B/op	      10 allocs/op
+BenchmarkMemcache32KB-16     	    5329	    208654 ns/op	  106868 B/op	      10 allocs/op
+BenchmarkMemcache32KB-16     	    5565	    209157 ns/op	  106867 B/op	      10 allocs/op
+BenchmarkMemcache64KB-16     	    4956	    237476 ns/op	  205290 B/op	      10 allocs/op
+BenchmarkMemcache64KB-16     	    4892	    237630 ns/op	  205293 B/op	      10 allocs/op
+BenchmarkMemcache64KB-16     	    4723	    237138 ns/op	  205292 B/op	      10 allocs/op
+BenchmarkMemcache128KB-16    	    4230	    291652 ns/op	  402070 B/op	      10 allocs/op
+BenchmarkMemcache128KB-16    	    4011	    287597 ns/op	  402091 B/op	      11 allocs/op
+BenchmarkMemcache128KB-16    	    4072	    294598 ns/op	  402064 B/op	      10 allocs/op
+BenchmarkMemcache256KB-16    	    2977	    392739 ns/op	  795727 B/op	      11 allocs/op
+BenchmarkMemcache256KB-16    	    3196	    401089 ns/op	  795722 B/op	      11 allocs/op
+BenchmarkMemcache256KB-16    	    3171	    396545 ns/op	  795727 B/op	      11 allocs/op
+BenchmarkMemcache512KB-16    	    1539	    774240 ns/op	 1582909 B/op	      13 allocs/op
+BenchmarkMemcache512KB-16    	    1492	    793377 ns/op	 1582922 B/op	      13 allocs/op
+BenchmarkMemcache512KB-16    	    1519	    849914 ns/op	 1582903 B/op	      13 allocs/op
+BenchmarkRedis2KB-16         	    5707	    211906 ns/op	    2802 B/op	      15 allocs/op
+BenchmarkRedis2KB-16         	    5950	    212550 ns/op	    2802 B/op	      15 allocs/op
+BenchmarkRedis2KB-16         	    5556	    212481 ns/op	    2802 B/op	      15 allocs/op
+BenchmarkRedis4KB-16         	    5595	    224834 ns/op	    5362 B/op	      15 allocs/op
+BenchmarkRedis4KB-16         	    5470	    220560 ns/op	    5362 B/op	      15 allocs/op
+BenchmarkRedis4KB-16         	    5306	    220018 ns/op	    5362 B/op	      15 allocs/op
+BenchmarkRedis8KB-16         	    5490	    213960 ns/op	    9970 B/op	      15 allocs/op
+BenchmarkRedis8KB-16         	    5610	    213308 ns/op	    9970 B/op	      15 allocs/op
+BenchmarkRedis8KB-16         	    5517	    217865 ns/op	    9970 B/op	      15 allocs/op
+BenchmarkRedis16KB-16        	    5122	    222176 ns/op	   18930 B/op	      15 allocs/op
+BenchmarkRedis16KB-16        	    4924	    222743 ns/op	   18930 B/op	      15 allocs/op
+BenchmarkRedis16KB-16        	    5306	    222298 ns/op	   18930 B/op	      15 allocs/op
+BenchmarkRedis32KB-16        	    4509	    246294 ns/op	   41458 B/op	      15 allocs/op
+BenchmarkRedis32KB-16        	    4724	    246491 ns/op	   41458 B/op	      15 allocs/op
+BenchmarkRedis32KB-16        	    4478	    245311 ns/op	   41458 B/op	      15 allocs/op
+BenchmarkRedis64KB-16        	    3699	    308357 ns/op	   74227 B/op	      15 allocs/op
+BenchmarkRedis64KB-16        	    3820	    309820 ns/op	   74226 B/op	      15 allocs/op
+BenchmarkRedis64KB-16        	    3747	    309878 ns/op	   74226 B/op	      15 allocs/op
+BenchmarkRedis128KB-16       	    3357	    347824 ns/op	  139764 B/op	      15 allocs/op
+BenchmarkRedis128KB-16       	    3375	    347032 ns/op	  139763 B/op	      15 allocs/op
+BenchmarkRedis128KB-16       	    3430	    350437 ns/op	  139764 B/op	      15 allocs/op
+BenchmarkRedis256KB-16       	    2677	    432280 ns/op	  270836 B/op	      15 allocs/op
+BenchmarkRedis256KB-16       	    2732	    429689 ns/op	  270836 B/op	      15 allocs/op
+BenchmarkRedis256KB-16       	    2725	    433443 ns/op	  270836 B/op	      15 allocs/op
+BenchmarkRedis512KB-16       	    1965	    596416 ns/op	  532982 B/op	      15 allocs/op
+BenchmarkRedis512KB-16       	    2014	    590433 ns/op	  532981 B/op	      15 allocs/op
+BenchmarkRedis512KB-16       	    1984	    602792 ns/op	  532982 B/op	      15 allocs/op
+PASS
+ok  	github.com/rah-0/benchmarks/cache	68.548s

@@ -8,10 +8,6 @@ var (
 	memcacheClient *memcache.Client
 )
 
-func init() {
-	memcacheClient = memcache.New("localhost:11211")
-}
-
 func CacheMemcacheSet(key string, value string) error {
 	return memcacheClient.Set(&memcache.Item{
 		Key:        key,

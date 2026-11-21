@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-const slogxModule = "github.com/rah-0/slogx-collector@v0.6.0"
+const slogxModule = "github.com/rah-0/slogx-collector@v0.7.0"
 
 // prepareSlogx builds the pinned module outside the measured interval. The
 // caller copies the binary into its runtime container and releases it afterward.

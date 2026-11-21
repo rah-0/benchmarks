@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// sinkInt64 prevents the compiler from eliminating benchmark calls whose
-// return values would otherwise be unused (dead-code elimination).
+// sinkInt64 is used only by serial benchmarks. Parallel workers retain their
+// own results so consuming them does not introduce shared-write contention.
 var sinkInt64 int64
 
 func TestAtomicCounter(t *testing.T) {
@@ -326,8 +326,21 @@ func TestFlatCombiningCounter(t *testing.T) {
 
 func TestFlatCombiningCounter_Concurrent(t *testing.T) {
 	var c FlatCombiningCounter
-	runConcurrentIncrements(t, 100, 1000, c.Increment)
-	assert.Equal(t, int64(100*1000), c.Get())
+	done := make(chan struct{})
+	go func() {
+		// Repeated short batches exercise the last waiter in each batch, which
+		// must make progress even when no new caller arrives to combine it.
+		for range 20 {
+			runConcurrentIncrements(t, 32, 32, c.Increment)
+		}
+		close(done)
+	}()
+	select {
+	case <-done:
+		assert.Equal(t, int64(20*32*32), c.Get())
+	case <-time.After(10 * time.Second):
+		t.Fatal("counter increments did not complete")
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -523,7 +536,6 @@ func TestApproxCounter_Approximate(t *testing.T) {
 		"expected ~%d, got %d", n, got)
 }
 
-
 func BenchmarkCounters_IncOnly(b *testing.B) {
 	b.Run("Atomic", func(b *testing.B) {
 		var c AtomicCounter
@@ -602,9 +614,11 @@ func BenchmarkCounters_GetOnly(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
+			var result int64
 			for pb.Next() {
-				sinkInt64 = c.Get()
+				result = c.Get()
 			}
+			runtime.KeepAlive(result)
 		})
 	})
 
@@ -614,9 +628,11 @@ func BenchmarkCounters_GetOnly(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
+			var result int64
 			for pb.Next() {
-				sinkInt64 = c.Get()
+				result = c.Get()
 			}
+			runtime.KeepAlive(result)
 		})
 	})
 
@@ -626,9 +642,11 @@ func BenchmarkCounters_GetOnly(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
+			var result int64
 			for pb.Next() {
-				sinkInt64 = c.Get()
+				result = c.Get()
 			}
+			runtime.KeepAlive(result)
 		})
 	})
 
@@ -638,12 +656,13 @@ func BenchmarkCounters_GetOnly(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
+			var result int64
 			for pb.Next() {
-				sinkInt64 = c.Get()
+				result = c.Get()
 			}
+			runtime.KeepAlive(result)
 		})
 	})
-
 
 	b.Run("CAS_Backoff", func(b *testing.B) {
 		var c CASBackoffCounter
@@ -651,9 +670,11 @@ func BenchmarkCounters_GetOnly(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
+			var result int64
 			for pb.Next() {
-				sinkInt64 = c.Get()
+				result = c.Get()
 			}
+			runtime.KeepAlive(result)
 		})
 	})
 
@@ -665,10 +686,12 @@ func BenchmarkCounters_GetOnly(b *testing.B) {
 			b.ReportAllocs()
 			b.ResetTimer()
 			b.RunParallel(func(pb *testing.PB) {
+				var result int64
 				reply := make(chan int64, 1)
 				for pb.Next() {
-					sinkInt64 = c.Get(reply)
+					result = c.Get(reply)
 				}
+				runtime.KeepAlive(result)
 			})
 		})
 	}
@@ -680,15 +703,17 @@ func BenchmarkCounters_Mixed90_10(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
+			var result int64
 			i := 0
 			for pb.Next() {
 				i++
 				if i%10 == 0 {
-					sinkInt64 = c.Get()
+					result = c.Get()
 				} else {
 					c.Increment()
 				}
 			}
+			runtime.KeepAlive(result)
 		})
 	})
 
@@ -697,15 +722,17 @@ func BenchmarkCounters_Mixed90_10(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
+			var result int64
 			i := 0
 			for pb.Next() {
 				i++
 				if i%10 == 0 {
-					sinkInt64 = c.Get()
+					result = c.Get()
 				} else {
 					c.Increment()
 				}
 			}
+			runtime.KeepAlive(result)
 		})
 	})
 
@@ -714,15 +741,17 @@ func BenchmarkCounters_Mixed90_10(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
+			var result int64
 			i := 0
 			for pb.Next() {
 				i++
 				if i%10 == 0 {
-					sinkInt64 = c.Get()
+					result = c.Get()
 				} else {
 					c.Increment()
 				}
 			}
+			runtime.KeepAlive(result)
 		})
 	})
 
@@ -731,15 +760,17 @@ func BenchmarkCounters_Mixed90_10(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
+			var result int64
 			i := 0
 			for pb.Next() {
 				i++
 				if i%10 == 0 {
-					sinkInt64 = c.Get()
+					result = c.Get()
 				} else {
 					c.Increment()
 				}
 			}
+			runtime.KeepAlive(result)
 		})
 	})
 
@@ -748,15 +779,17 @@ func BenchmarkCounters_Mixed90_10(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
+			var result int64
 			i := 0
 			for pb.Next() {
 				i++
 				if i%10 == 0 {
-					sinkInt64 = c.Get()
+					result = c.Get()
 				} else {
 					c.Increment()
 				}
 			}
+			runtime.KeepAlive(result)
 		})
 	})
 
@@ -767,16 +800,18 @@ func BenchmarkCounters_Mixed90_10(b *testing.B) {
 			b.ReportAllocs()
 			b.ResetTimer()
 			b.RunParallel(func(pb *testing.PB) {
+				var result int64
 				reply := make(chan int64, 1)
 				i := 0
 				for pb.Next() {
 					i++
 					if i%10 == 0 {
-						sinkInt64 = c.Get(reply)
+						result = c.Get(reply)
 					} else {
 						c.Increment()
 					}
 				}
+				runtime.KeepAlive(result)
 			})
 		})
 	}
@@ -901,11 +936,13 @@ func BenchmarkMap_LoadOnly(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
+			var result int64
 			i := 0
 			for pb.Next() {
-				sinkInt64, _ = sm.Load(mapKeys[i&1023])
+				result, _ = sm.Load(mapKeys[i&1023])
 				i++
 			}
+			runtime.KeepAlive(result)
 		})
 	})
 
@@ -913,11 +950,13 @@ func BenchmarkMap_LoadOnly(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
+			var result int64
 			i := 0
 			for pb.Next() {
-				sinkInt64, _ = mm.Load(mapKeys[i&1023])
+				result, _ = mm.Load(mapKeys[i&1023])
 				i++
 			}
+			runtime.KeepAlive(result)
 		})
 	})
 }
@@ -986,10 +1025,12 @@ func BenchmarkOnce(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
+			var result int64
 			for pb.Next() {
 				o.Init()
-				sinkInt64 = o.Get()
+				result = o.Get()
 			}
+			runtime.KeepAlive(result)
 		})
 	})
 
@@ -999,10 +1040,12 @@ func BenchmarkOnce(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
+			var result int64
 			for pb.Next() {
 				o.Init() // fast path: already initialized
-				sinkInt64 = o.Get()
+				result = o.Get()
 			}
+			runtime.KeepAlive(result)
 		})
 	})
 }
@@ -1132,9 +1175,11 @@ func BenchmarkReduction_GetOnly(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
+			var result int64
 			for pb.Next() {
-				sinkInt64 = c.Get()
+				result = c.Get()
 			}
+			runtime.KeepAlive(result)
 		})
 	})
 
@@ -1144,9 +1189,11 @@ func BenchmarkReduction_GetOnly(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
+			var result int64
 			for pb.Next() {
-				sinkInt64 = c.Get()
+				result = c.Get()
 			}
+			runtime.KeepAlive(result)
 		})
 	})
 
@@ -1156,9 +1203,11 @@ func BenchmarkReduction_GetOnly(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
+			var result int64
 			for pb.Next() {
-				sinkInt64 = c.Get()
+				result = c.Get()
 			}
+			runtime.KeepAlive(result)
 		})
 	})
 
@@ -1167,9 +1216,11 @@ func BenchmarkReduction_GetOnly(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
+			var result int64
 			for pb.Next() {
-				sinkInt64 = c.Get()
+				result = c.Get()
 			}
+			runtime.KeepAlive(result)
 		})
 	})
 }
@@ -1187,13 +1238,16 @@ func BenchmarkDisruptorMPSC(b *testing.B) {
 
 			// 4 producers
 			producers := 4
-			perProducer := b.N / producers
 			var wg sync.WaitGroup
 			wg.Add(producers)
 			for p := 0; p < producers; p++ {
+				count := b.N / producers
+				if p < b.N%producers {
+					count++
+				}
 				go func() {
 					defer wg.Done()
-					for i := 0; i < perProducer; i++ {
+					for i := 0; i < count; i++ {
 						for !d.Publish(int64(i)) {
 							runtime.Gosched()
 						}
@@ -1201,8 +1255,7 @@ func BenchmarkDisruptorMPSC(b *testing.B) {
 				}()
 			}
 
-			total := producers * perProducer
-			for i := 0; i < total; i++ {
+			for i := 0; i < b.N; i++ {
 				for {
 					if _, ok := d.Consume(); ok {
 						break

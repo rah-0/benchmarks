@@ -1,0 +1,21 @@
+goos: linux
+goarch: amd64
+pkg: github.com/rah-0/benchmarks/db/mariadb
+cpu: AMD Ryzen 9 5900HX with Radeon Graphics        
+BenchmarkMariaDBSingleInsertFixedData-16               	    5220	    271784 ns/op	     824 B/op	      20 allocs/op
+BenchmarkMariaDBSingleInsertFixedData-16               	    5282	    268869 ns/op	     824 B/op	      20 allocs/op
+BenchmarkMariaDBSingleInsertFixedData-16               	    5649	    269950 ns/op	     824 B/op	      20 allocs/op
+BenchmarkMariaDBSingleInsertRandomData-16              	    5596	    289537 ns/op	     888 B/op	      22 allocs/op
+BenchmarkMariaDBSingleInsertRandomData-16              	    5584	    277759 ns/op	     888 B/op	      22 allocs/op
+BenchmarkMariaDBSingleInsertRandomData-16              	    5515	    292116 ns/op	     888 B/op	      22 allocs/op
+BenchmarkMariaDBInsert1MilAndFindMiddle-16             	    5145	    213644 ns/op	     800 B/op	      24 allocs/op
+BenchmarkMariaDBInsert1MilAndFindMiddle-16             	    5200	    216853 ns/op	     800 B/op	      24 allocs/op
+BenchmarkMariaDBInsert1MilAndFindMiddle-16             	    5349	    217785 ns/op	     801 B/op	      24 allocs/op
+BenchmarkMariaDBInsert100kAndSort-16                   	      58	  18602144 ns/op	 8800627 B/op	  300016 allocs/op
+BenchmarkMariaDBInsert100kAndSort-16                   	      62	  18822921 ns/op	 8800540 B/op	  300016 allocs/op
+BenchmarkMariaDBInsert100kAndSort-16                   	      60	  18298221 ns/op	 8800519 B/op	  300016 allocs/op
+BenchmarkMariaDBInsert100kAndQueryOlderThan15Min-16    	      28	  40773304 ns/op	10880864 B/op	  400022 allocs/op
+BenchmarkMariaDBInsert100kAndQueryOlderThan15Min-16    	      28	  40538450 ns/op	10880868 B/op	  400022 allocs/op
+BenchmarkMariaDBInsert100kAndQueryOlderThan15Min-16    	      30	  40577733 ns/op	10880872 B/op	  400022 allocs/op
+PASS
+ok  	github.com/rah-0/benchmarks/db/mariadb	382.206s

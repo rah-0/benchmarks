@@ -2,13 +2,10 @@ package postgresql
 
 import (
 	"database/sql"
-	"fmt"
 	"runtime"
 	"time"
 
 	_ "github.com/lib/pq"
-
-	"github.com/rah-0/benchmarks/util"
 )
 
 var (
@@ -29,12 +26,7 @@ func dbTableSampleAInsert(fieldAValue string) error {
 	return err
 }
 
-func dbConnect() (err error) {
-	ip := util.GetEnvVariable("Postgres_IP")
-	port := util.GetEnvVariable("Postgres_Port")
-	dbName := util.GetEnvVariable("Postgres_Name")
-
-	dsn := fmt.Sprintf("host=%s port=%s user=postgres dbname=%s sslmode=disable", ip, port, dbName)
+func dbConnect(dsn string) (err error) {
 	db, err = sql.Open("postgres", dsn)
 	if err != nil {
 		return err

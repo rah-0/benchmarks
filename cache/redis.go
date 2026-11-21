@@ -10,12 +10,6 @@ var (
 	redisClient *redis.Client
 )
 
-func init() {
-	redisClient = redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-	})
-}
-
 func CacheRedisSet(key string, value string) error {
 	return redisClient.Set(context.Background(), key, value, 0).Err()
 }

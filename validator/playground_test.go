@@ -8,9 +8,9 @@ import (
 
 type pgUserForm struct {
 	Email    string `validate:"required,email"`
-	Username string `validate:"required,min=5,max=50,alphanumunicode"`
-	Password string `validate:"required,min=8,max=150"`
-	Age      string `validate:"required,numeric"`
+	Username string `validate:"required,min=5,max=50,username"`
+	Password string `validate:"required,min=8,max=150,password"`
+	Age      string `validate:"required,nonnegativeint"`
 	Website  string `validate:"required,url"`
 }
 
@@ -22,89 +22,102 @@ func pgLoad(u UserForm) pgUserForm {
 	return pgUserForm{Email: u.Email, Username: u.Username, Password: u.Password, Age: u.Age, Website: u.Website}
 }
 
-func BenchmarkPlaygroundSingleFieldValid(b *testing.B) {
+func pgNew(tb testing.TB) *validator.Validate {
+	tb.Helper()
 	v := validator.New()
+	if err := v.RegisterValidation("username", func(fl validator.FieldLevel) bool {
+		return usernameChars.MatchString(fl.Field().String())
+	}); err != nil {
+		tb.Fatal(err)
+	}
+	if err := v.RegisterValidation("password", func(fl validator.FieldLevel) bool {
+		return passwordChars(fl.Field().String())
+	}); err != nil {
+		tb.Fatal(err)
+	}
+	if err := v.RegisterValidation("nonnegativeint", func(fl validator.FieldLevel) bool {
+		return nonNegativeInt.MatchString(fl.Field().String())
+	}); err != nil {
+		tb.Fatal(err)
+	}
+	return v
+}
+
+func BenchmarkPlaygroundSingleFieldValid(b *testing.B) {
+	v := pgNew(b)
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		s := pgEmailForm{Email: validUser.Email}
-		_ = v.Struct(s)
+		validationErrorSink = v.Struct(s)
 	}
 }
 
 func BenchmarkPlaygroundSingleFieldInvalid(b *testing.B) {
-	v := validator.New()
+	v := pgNew(b)
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		s := pgEmailForm{Email: invalidUser.Email}
-		_ = v.Struct(s)
+		validationErrorSink = v.Struct(s)
 	}
 }
 
 func BenchmarkPlaygroundMultiFieldAllValid(b *testing.B) {
-	v := validator.New()
+	v := pgNew(b)
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = v.Struct(pgLoad(validUser))
+	for b.Loop() {
+		validationErrorSink = v.Struct(pgLoad(validUser))
 	}
 }
 
 func BenchmarkPlaygroundMultiFieldSomeInvalid(b *testing.B) {
-	v := validator.New()
+	v := pgNew(b)
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = v.Struct(pgLoad(invalidUser))
+	for b.Loop() {
+		validationErrorSink = v.Struct(pgLoad(invalidUser))
 	}
 }
 
 // --- Full cycle: validate + inspect results ---
 
 func BenchmarkPlaygroundFullCycleSingleFieldValid(b *testing.B) {
-	v := validator.New()
+	v := pgNew(b)
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		s := pgEmailForm{Email: validUser.Email}
-		_ = v.Struct(s) == nil
+		validationOKSink = v.Struct(s) == nil
 	}
 }
 
 func BenchmarkPlaygroundFullCycleSingleFieldInvalid(b *testing.B) {
-	v := validator.New()
+	v := pgNew(b)
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		s := pgEmailForm{Email: invalidUser.Email}
 		if err := v.Struct(s); err != nil {
 			for _, e := range err.(validator.ValidationErrors) {
-				_ = e.Field()
-				_ = e.Tag()
+				validationFieldSink = e.Field()
+				validationRuleSink = e.Tag()
 			}
 		}
 	}
 }
 
 func BenchmarkPlaygroundFullCycleMultiFieldAllValid(b *testing.B) {
-	v := validator.New()
+	v := pgNew(b)
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = v.Struct(pgLoad(validUser)) == nil
+	for b.Loop() {
+		validationOKSink = v.Struct(pgLoad(validUser)) == nil
 	}
 }
 
 func BenchmarkPlaygroundFullCycleMultiFieldSomeInvalid(b *testing.B) {
-	v := validator.New()
+	v := pgNew(b)
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		if err := v.Struct(pgLoad(invalidUser)); err != nil {
 			for _, e := range err.(validator.ValidationErrors) {
-				_ = e.Field()
-				_ = e.Tag()
+				validationFieldSink = e.Field()
+				validationRuleSink = e.Tag()
 			}
 		}
 	}

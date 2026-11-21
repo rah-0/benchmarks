@@ -1,3 +1,13 @@
 .idea/
 pprof_svg/
 *.test
+
+# Local credentials and unpublished benchmark diagnostics.
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+.benchmark.*/

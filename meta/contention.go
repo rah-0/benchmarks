@@ -434,13 +434,13 @@ func (c *FlatCombiningCounter) Increment() {
 	c.pending = append(c.pending, op)
 	c.pmu.Unlock()
 
-	// Try to become the combiner
-	if c.mu.TryLock() {
-		c.combine()
-		c.mu.Unlock()
-	} else {
-		// Wait for combiner to process our op
-		for !op.done.Load() {
+	// A running combiner may already have detached its batch before this
+	// operation was queued. Keep trying to combine until our batch is done.
+	for !op.done.Load() {
+		if c.mu.TryLock() {
+			c.combine()
+			c.mu.Unlock()
+		} else {
 			runtime.Gosched()
 		}
 	}

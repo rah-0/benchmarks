@@ -29,7 +29,7 @@ func TestCacheMemcacheSetGet(t *testing.T) {
 
 func TestCacheMemcacheSetGetSizes(t *testing.T) {
 	for sizeType, size := range testutil.Sizes {
-		if size > 11 {
+		if sizeType > 11 {
 			continue
 		}
 

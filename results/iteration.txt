@@ -1,0 +1,60 @@
+goos: linux
+goarch: amd64
+pkg: github.com/rah-0/benchmarks/iteration
+cpu: AMD Ryzen 9 5900HX with Radeon Graphics        
+BenchmarkPullChan_Full_100k-16                   	     133	   8964245 ns/op	 2404392 B/op	  199753 allocs/op
+BenchmarkPullChan_Full_100k-16                   	     133	   9001685 ns/op	 2404386 B/op	  199753 allocs/op
+BenchmarkPullChan_Full_100k-16                   	     132	   8937887 ns/op	 2404436 B/op	  199753 allocs/op
+BenchmarkPullSlice_Full_100k-16                  	     325	   3709668 ns/op	 6501454 B/op	  199771 allocs/op
+BenchmarkPullSlice_Full_100k-16                  	     322	   3775850 ns/op	 6501480 B/op	  199771 allocs/op
+BenchmarkPullSlice_Full_100k-16                  	     313	   3757700 ns/op	 6501547 B/op	  199771 allocs/op
+BenchmarkBaseline_ChanDirect_Full_100k-16        	      19	  59949284 ns/op	 4840833 B/op	  299752 allocs/op
+BenchmarkBaseline_ChanDirect_Full_100k-16        	      20	  58284163 ns/op	 4838628 B/op	  299751 allocs/op
+BenchmarkBaseline_ChanDirect_Full_100k-16        	      20	  58324918 ns/op	 4838574 B/op	  299751 allocs/op
+BenchmarkBaseline_SliceDirect_Full_100k-16       	     318	   3800825 ns/op	 6501533 B/op	  199769 allocs/op
+BenchmarkBaseline_SliceDirect_Full_100k-16       	     313	   3745080 ns/op	 6501567 B/op	  199769 allocs/op
+BenchmarkBaseline_SliceDirect_Full_100k-16       	     314	   3792546 ns/op	 6501569 B/op	  199769 allocs/op
+BenchmarkPullChan_EarlyClose10_100k-16           	 1000000	      1132 ns/op	     456 B/op	      19 allocs/op
+BenchmarkPullChan_EarlyClose10_100k-16           	  988005	      1134 ns/op	     456 B/op	      19 allocs/op
+BenchmarkPullChan_EarlyClose10_100k-16           	 1000000	      1131 ns/op	     456 B/op	      19 allocs/op
+BenchmarkPullSlice_EarlyClose10_100k-16          	    1023	   1243216 ns/op	 4101958 B/op	      37 allocs/op
+BenchmarkPullSlice_EarlyClose10_100k-16          	     902	   1283370 ns/op	 4102058 B/op	      37 allocs/op
+BenchmarkPullSlice_EarlyClose10_100k-16          	     904	   1343637 ns/op	 4102054 B/op	      37 allocs/op
+BenchmarkPullChan_TTFR_1M-16                     	 3650314	       329.5 ns/op	     314 B/op	      10 allocs/op
+BenchmarkPullChan_TTFR_1M-16                     	 3629644	       328.4 ns/op	     314 B/op	      10 allocs/op
+BenchmarkPullChan_TTFR_1M-16                     	 3661389	       328.9 ns/op	     314 B/op	      10 allocs/op
+BenchmarkPullSlice_TTFR_1M-16                    	     129	   8336284 ns/op	41739779 B/op	      38 allocs/op
+BenchmarkPullSlice_TTFR_1M-16                    	     126	  10196253 ns/op	41741273 B/op	      38 allocs/op
+BenchmarkPullSlice_TTFR_1M-16                    	     124	   9978787 ns/op	41742298 B/op	      38 allocs/op
+BenchmarkPullChan_SlowConsumerWork50_100k-16     	     100	  10361254 ns/op	 2406382 B/op	  199753 allocs/op
+BenchmarkPullChan_SlowConsumerWork50_100k-16     	     100	  10299597 ns/op	 2406369 B/op	  199753 allocs/op
+BenchmarkPullChan_SlowConsumerWork50_100k-16     	     100	  10391103 ns/op	 2406375 B/op	  199753 allocs/op
+BenchmarkPullSlice_SlowConsumerWork50_100k-16    	     241	   4939062 ns/op	 6502321 B/op	  199771 allocs/op
+BenchmarkPullSlice_SlowConsumerWork50_100k-16    	     242	   4923219 ns/op	 6502296 B/op	  199771 allocs/op
+BenchmarkPullSlice_SlowConsumerWork50_100k-16    	     240	   4990618 ns/op	 6502334 B/op	  199771 allocs/op
+BenchmarkPullChan_SlowProducerWork50_100k-16     	     100	  10833904 ns/op	 2406448 B/op	  199755 allocs/op
+BenchmarkPullChan_SlowProducerWork50_100k-16     	     100	  10839240 ns/op	 2406430 B/op	  199755 allocs/op
+BenchmarkPullChan_SlowProducerWork50_100k-16     	     100	  10939319 ns/op	 2406443 B/op	  199755 allocs/op
+BenchmarkPullSlice_SlowProducerWork50_100k-16    	     224	   5282937 ns/op	 6502577 B/op	  199773 allocs/op
+BenchmarkPullSlice_SlowProducerWork50_100k-16    	     223	   5341875 ns/op	 6502609 B/op	  199773 allocs/op
+BenchmarkPullSlice_SlowProducerWork50_100k-16    	     226	   5344971 ns/op	 6502564 B/op	  199773 allocs/op
+BenchmarkPullChan_MultiRange_100k_10parts-16     	     126	   9438845 ns/op	 2405188 B/op	  199773 allocs/op
+BenchmarkPullChan_MultiRange_100k_10parts-16     	     127	   9392708 ns/op	 2405125 B/op	  199773 allocs/op
+BenchmarkPullChan_MultiRange_100k_10parts-16     	     126	   9411045 ns/op	 2405183 B/op	  199773 allocs/op
+BenchmarkPullSlice_MultiRange_100k_10parts-16    	     277	   4277100 ns/op	 6502151 B/op	  199781 allocs/op
+BenchmarkPullSlice_MultiRange_100k_10parts-16    	     279	   4287160 ns/op	 6502137 B/op	  199781 allocs/op
+BenchmarkPullSlice_MultiRange_100k_10parts-16    	     268	   4301271 ns/op	 6502260 B/op	  199781 allocs/op
+BenchmarkPullChan_EmptyRange-16                  	 4580094	       264.4 ns/op	     296 B/op	       9 allocs/op
+BenchmarkPullChan_EmptyRange-16                  	 4567844	       266.2 ns/op	     296 B/op	       9 allocs/op
+BenchmarkPullChan_EmptyRange-16                  	 4507977	       265.6 ns/op	     296 B/op	       9 allocs/op
+BenchmarkPullSlice_EmptyRange-16                 	 8020299	       154.3 ns/op	     600 B/op	       6 allocs/op
+BenchmarkPullSlice_EmptyRange-16                 	 7788687	       151.5 ns/op	     600 B/op	       6 allocs/op
+BenchmarkPullSlice_EmptyRange-16                 	 8045770	       152.5 ns/op	     600 B/op	       6 allocs/op
+BenchmarkPullChan_Parallel_10k-16                	    5116	    258581 ns/op	  238289 B/op	   19753 allocs/op
+BenchmarkPullChan_Parallel_10k-16                	    4740	    258287 ns/op	  238284 B/op	   19753 allocs/op
+BenchmarkPullChan_Parallel_10k-16                	    4707	    259411 ns/op	  238286 B/op	   19753 allocs/op
+BenchmarkPullSlice_Parallel_10k-16               	   10417	    114051 ns/op	  595177 B/op	   19762 allocs/op
+BenchmarkPullSlice_Parallel_10k-16               	   10480	    116403 ns/op	  595175 B/op	   19762 allocs/op
+BenchmarkPullSlice_Parallel_10k-16               	   10245	    114512 ns/op	  595177 B/op	   19762 allocs/op
+PASS
+ok  	github.com/rah-0/benchmarks/iteration	84.501s

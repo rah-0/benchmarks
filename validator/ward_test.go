@@ -7,78 +7,72 @@ import (
 	"github.com/rah-0/ward/types/strs"
 )
 
+func wardField(name string, value *string, rules ...strs.Rule) *strs.Field {
+	field := strs.New(name, value, rules...)
+	// Match the peers: collect the first failing rule for each field.
+	field.Policy.StopOnFail = true
+	return field
+}
+
+func wardAddFields(v *ward.Validate, form *UserForm) {
+	v.Add(
+		wardField("Email", &form.Email, strs.RuleNotEmpty(), strs.RuleIsEmail()),
+		wardField("Username", &form.Username, strs.RuleNotEmpty(), strs.RuleLengthMin(5), strs.RuleLengthMax(50), strs.RuleIsUsernameChars()),
+		wardField("Password", &form.Password, strs.RuleNotEmpty(), strs.RuleLengthMin(8), strs.RuleLengthMax(150), strs.RuleIsPasswordChars()),
+		wardField("Age", &form.Age, strs.RuleNotEmpty(), strs.RuleIsNonNegativeInt()),
+		wardField("Website", &form.Website, strs.RuleNotEmpty(), strs.RuleIsURL()),
+	)
+}
+
 // --- Single field ---
 
 func BenchmarkWardSingleFieldValid(b *testing.B) {
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		email := validUser.Email
 		v := ward.New()
-		v.Add(strs.New("Email", &email, strs.RuleNotEmpty(), strs.RuleIsEmail()))
+		v.Add(wardField("Email", &email, strs.RuleNotEmpty(), strs.RuleIsEmail()))
 		v.Run()
 	}
 }
 
 func BenchmarkWardSingleFieldInvalid(b *testing.B) {
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		email := invalidUser.Email
 		v := ward.New()
-		v.Add(strs.New("Email", &email, strs.RuleNotEmpty(), strs.RuleIsEmail()))
+		v.Add(wardField("Email", &email, strs.RuleNotEmpty(), strs.RuleIsEmail()))
 		v.Run()
 	}
 }
 
 func BenchmarkWardMultiFieldAllValid(b *testing.B) {
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		form := validUser
 		v := ward.New()
-		v.Add(
-			strs.New("Email",    &form.Email,    strs.RuleNotEmpty(), strs.RuleIsEmail()),
-			strs.New("Username", &form.Username, strs.RuleNotEmpty(), strs.RuleLengthMin(5), strs.RuleLengthMax(50), strs.RuleIsUsernameChars()),
-			strs.New("Password", &form.Password, strs.RuleNotEmpty(), strs.RuleLengthMin(8), strs.RuleLengthMax(150), strs.RuleIsPasswordChars()),
-			strs.New("Age",      &form.Age,      strs.RuleNotEmpty(), strs.RuleIsNonNegativeInt()),
-			strs.New("Website",  &form.Website,  strs.RuleNotEmpty(), strs.RuleIsURL()),
-		)
+		wardAddFields(v, &form)
 		v.Run()
 	}
 }
 
 func BenchmarkWardMultiFieldSomeInvalid(b *testing.B) {
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		form := invalidUser
 		v := ward.New()
-		v.Add(
-			strs.New("Email",    &form.Email,    strs.RuleNotEmpty(), strs.RuleIsEmail()),
-			strs.New("Username", &form.Username, strs.RuleNotEmpty(), strs.RuleLengthMin(5), strs.RuleLengthMax(50), strs.RuleIsUsernameChars()),
-			strs.New("Password", &form.Password, strs.RuleNotEmpty(), strs.RuleLengthMin(8), strs.RuleLengthMax(150), strs.RuleIsPasswordChars()),
-			strs.New("Age",      &form.Age,      strs.RuleNotEmpty(), strs.RuleIsNonNegativeInt()),
-			strs.New("Website",  &form.Website,  strs.RuleNotEmpty(), strs.RuleIsURL()),
-		)
+		wardAddFields(v, &form)
 		v.Run()
 	}
 }
 
 func BenchmarkWardMultiFieldStopOnFail(b *testing.B) {
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		form := invalidUser
 		v := ward.New()
 		v.Policy.StopOnFail = true
-		v.Add(
-			strs.New("Email",    &form.Email,    strs.RuleNotEmpty(), strs.RuleIsEmail()),
-			strs.New("Username", &form.Username, strs.RuleNotEmpty(), strs.RuleLengthMin(5), strs.RuleLengthMax(50), strs.RuleIsUsernameChars()),
-			strs.New("Password", &form.Password, strs.RuleNotEmpty(), strs.RuleLengthMin(8), strs.RuleLengthMax(150), strs.RuleIsPasswordChars()),
-			strs.New("Age",      &form.Age,      strs.RuleNotEmpty(), strs.RuleIsNonNegativeInt()),
-			strs.New("Website",  &form.Website,  strs.RuleNotEmpty(), strs.RuleIsURL()),
-		)
+		wardAddFields(v, &form)
 		v.Run()
 	}
 }
@@ -87,28 +81,26 @@ func BenchmarkWardMultiFieldStopOnFail(b *testing.B) {
 
 func BenchmarkWardFullCycleSingleFieldValid(b *testing.B) {
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		email := validUser.Email
 		v := ward.New()
-		v.Add(strs.New("Email", &email, strs.RuleNotEmpty(), strs.RuleIsEmail()))
+		v.Add(wardField("Email", &email, strs.RuleNotEmpty(), strs.RuleIsEmail()))
 		v.Run()
-		_ = v.HasFailures()
+		validationOKSink = !v.HasFailures()
 	}
 }
 
 func BenchmarkWardFullCycleSingleFieldInvalid(b *testing.B) {
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		email := invalidUser.Email
 		v := ward.New()
-		v.Add(strs.New("Email", &email, strs.RuleNotEmpty(), strs.RuleIsEmail()))
+		v.Add(wardField("Email", &email, strs.RuleNotEmpty(), strs.RuleIsEmail()))
 		v.Run()
 		if v.HasFailures() {
 			for _, f := range v.Failures() {
-				_ = f.FieldName
-				_ = f.RuleID
+				validationFieldSink = f.FieldName
+				validationRuleIDSink = f.RuleID
 			}
 		}
 	}
@@ -116,40 +108,26 @@ func BenchmarkWardFullCycleSingleFieldInvalid(b *testing.B) {
 
 func BenchmarkWardFullCycleMultiFieldAllValid(b *testing.B) {
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		form := validUser
 		v := ward.New()
-		v.Add(
-			strs.New("Email",    &form.Email,    strs.RuleNotEmpty(), strs.RuleIsEmail()),
-			strs.New("Username", &form.Username, strs.RuleNotEmpty(), strs.RuleLengthMin(5), strs.RuleLengthMax(50), strs.RuleIsUsernameChars()),
-			strs.New("Password", &form.Password, strs.RuleNotEmpty(), strs.RuleLengthMin(8), strs.RuleLengthMax(150), strs.RuleIsPasswordChars()),
-			strs.New("Age",      &form.Age,      strs.RuleNotEmpty(), strs.RuleIsNonNegativeInt()),
-			strs.New("Website",  &form.Website,  strs.RuleNotEmpty(), strs.RuleIsURL()),
-		)
+		wardAddFields(v, &form)
 		v.Run()
-		_ = v.HasFailures()
+		validationOKSink = !v.HasFailures()
 	}
 }
 
 func BenchmarkWardFullCycleMultiFieldSomeInvalid(b *testing.B) {
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		form := invalidUser
 		v := ward.New()
-		v.Add(
-			strs.New("Email",    &form.Email,    strs.RuleNotEmpty(), strs.RuleIsEmail()),
-			strs.New("Username", &form.Username, strs.RuleNotEmpty(), strs.RuleLengthMin(5), strs.RuleLengthMax(50), strs.RuleIsUsernameChars()),
-			strs.New("Password", &form.Password, strs.RuleNotEmpty(), strs.RuleLengthMin(8), strs.RuleLengthMax(150), strs.RuleIsPasswordChars()),
-			strs.New("Age",      &form.Age,      strs.RuleNotEmpty(), strs.RuleIsNonNegativeInt()),
-			strs.New("Website",  &form.Website,  strs.RuleNotEmpty(), strs.RuleIsURL()),
-		)
+		wardAddFields(v, &form)
 		v.Run()
 		if v.HasFailures() {
 			for _, f := range v.Failures() {
-				_ = f.FieldName
-				_ = f.RuleID
+				validationFieldSink = f.FieldName
+				validationRuleIDSink = f.RuleID
 			}
 		}
 	}

@@ -11,45 +11,48 @@ func ozzoValidateEmail(email string) error {
 	return validation.Validate(email, validation.Required, is.Email)
 }
 
+var passwordRule = validation.By(func(value any) error {
+	if passwordChars(value.(string)) {
+		return nil
+	}
+	return validation.NewError("password", "must contain a lowercase letter, uppercase letter, digit and special character")
+})
+
 func ozzoValidateAll(u UserForm) error {
 	return validation.Errors{
 		"email":    validation.Validate(u.Email, validation.Required, is.Email),
-		"username": validation.Validate(u.Username, validation.Required, validation.Length(5, 50)),
-		"password": validation.Validate(u.Password, validation.Required, validation.Length(8, 150)),
-		"age":      validation.Validate(u.Age, validation.Required, is.Int),
+		"username": validation.Validate(u.Username, validation.Required, validation.RuneLength(5, 50), validation.Match(usernameChars)),
+		"password": validation.Validate(u.Password, validation.Required, validation.RuneLength(8, 150), passwordRule),
+		"age":      validation.Validate(u.Age, validation.Required, validation.Match(nonNegativeInt)),
 		"website":  validation.Validate(u.Website, validation.Required, is.URL),
 	}.Filter()
 }
 
 func BenchmarkOzzoSingleFieldValid(b *testing.B) {
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = ozzoValidateEmail(validUser.Email)
+	for b.Loop() {
+		validationErrorSink = ozzoValidateEmail(validUser.Email)
 	}
 }
 
 func BenchmarkOzzoSingleFieldInvalid(b *testing.B) {
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = ozzoValidateEmail(invalidUser.Email)
+	for b.Loop() {
+		validationErrorSink = ozzoValidateEmail(invalidUser.Email)
 	}
 }
 
 func BenchmarkOzzoMultiFieldAllValid(b *testing.B) {
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = ozzoValidateAll(validUser)
+	for b.Loop() {
+		validationErrorSink = ozzoValidateAll(validUser)
 	}
 }
 
 func BenchmarkOzzoMultiFieldSomeInvalid(b *testing.B) {
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = ozzoValidateAll(invalidUser)
+	for b.Loop() {
+		validationErrorSink = ozzoValidateAll(invalidUser)
 	}
 }
 
@@ -57,38 +60,34 @@ func BenchmarkOzzoMultiFieldSomeInvalid(b *testing.B) {
 
 func BenchmarkOzzoFullCycleSingleFieldValid(b *testing.B) {
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = ozzoValidateEmail(validUser.Email) == nil
+	for b.Loop() {
+		validationOKSink = ozzoValidateEmail(validUser.Email) == nil
 	}
 }
 
 func BenchmarkOzzoFullCycleSingleFieldInvalid(b *testing.B) {
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		if err := ozzoValidateEmail(invalidUser.Email); err != nil {
-			_ = err.Error()
+			validationRuleSink = err.Error()
 		}
 	}
 }
 
 func BenchmarkOzzoFullCycleMultiFieldAllValid(b *testing.B) {
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = ozzoValidateAll(validUser) == nil
+	for b.Loop() {
+		validationOKSink = ozzoValidateAll(validUser) == nil
 	}
 }
 
 func BenchmarkOzzoFullCycleMultiFieldSomeInvalid(b *testing.B) {
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		if err := ozzoValidateAll(invalidUser); err != nil {
 			for field, e := range err.(validation.Errors) {
-				_ = field
-				_ = e.Error()
+				validationFieldSink = field
+				validationRuleSink = e.Error()
 			}
 		}
 	}

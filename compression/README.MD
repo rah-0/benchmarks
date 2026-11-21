@@ -1,118 +1,81 @@
-# Summary
+# Compression benchmarks
 
-## Brotli
-- Achieves the highest compression ratios, especially with repeated data
-- Good all-rounder: will compress either small or big amount of data 
-- Extremely slow and memory intensive
+Compare the cost of compressing and decompressing a 1 MiB printable-ASCII input.
+**Gzip is the reference.** These results measure the complete round trip;
+compressed size and compression ratio are not measured on a shared corpus.
 
-## Gzip
-- Compressing small items can even yield a bigger data output
-- Very high compression ratios for repeated data
-- Not so good at random data
+[Results](#results) · [Methodology](#methodology) · [Run](#running)
 
-## LZ4
-- The fastest but it can deal with repeated data only, it's quite bad at completely random data
-- Compressing small items can even yield a bigger data output
+<!-- benchmark-results:start -->
+## Results
 
-# Benchmark Results
+**2026-11-21 · go1.27.4 · linux/amd64 · AMD Ryzen 9 5900HX with Radeon Graphics**
+GOMAXPROCS: 16; samples per case: 3.
 
-The data sample is 1mb of random data.
+Tables show medians. **Speed = baseline time ÷ candidate time**: 2.00× is twice
+the baseline speed; 0.50× is half. Allocated bytes and allocation counts describe
+Go heap allocation per operation, not retained memory or process RSS.
+These samples are descriptive; observed min–max ranges appear in the details
+and are not confidence intervals. A zero denominator is shown as **—**.
 
-| Algorithm | Time (ms/op) | Memory Allocated (MB/op)  | Allocations/op |
-|-----------|--------------|---------------------------|----------------|
-| Brotli    | 1114.68 ms   | 131.4 MB                  | 119            |
-| Gzip      | 25.99 ms     | 7.14 MB                   | 57             |
-| LZ4       | 2.80 ms      | 10.0 MB                   | 38             |
+[Environment](../results/environment.txt) · [Versions](../results/modules.txt) · [Reading the comparisons](../README.md#reading-the-comparisons)
 
-# Compression Results (Random Data)
-| Size       | Algorithm | Encoded Size | Compressed Size | Gain (%)  |
-|------------|-----------|--------------|-----------------|-----------|
-| **2KB**    | Brotli    | 2048 bytes   | 1709 bytes      | 16.55%    |
-|            | Gzip      | 2048 bytes   | 1734 bytes      | 15.33%    |
-|            | LZ4       | 2048 bytes   | 2067 bytes      | -0.93%    |
-| **4KB**    | Brotli    | 4096 bytes   | 3391 bytes      | 17.21%    |
-|            | Gzip      | 4096 bytes   | 3419 bytes      | 16.53%    |
-|            | LZ4       | 4096 bytes   | 4115 bytes      | -0.46%    |
-| **8KB**    | Brotli    | 8192 bytes   | 6776 bytes      | 17.29%    |
-|            | Gzip      | 8192 bytes   | 6798 bytes      | 17.02%    |
-|            | LZ4       | 8192 bytes   | 8211 bytes      | -0.23%    |
-| **16KB**   | Brotli    | 16384 bytes  | 13526 bytes     | 17.44%    |
-|            | Gzip      | 16384 bytes  | 13575 bytes     | 17.14%    |
-|            | LZ4       | 16384 bytes  | 16403 bytes     | -0.12%    |
-| **32KB**   | Brotli    | 32768 bytes  | 27064 bytes     | 17.41%    |
-|            | Gzip      | 32768 bytes  | 27107 bytes     | 17.28%    |
-|            | LZ4       | 32768 bytes  | 32787 bytes     | -0.06%    |
-| **64KB**   | Brotli    | 65536 bytes  | 54126 bytes     | 17.41%    |
-|            | Gzip      | 65536 bytes  | 54211 bytes     | 17.28%    |
-|            | LZ4       | 65536 bytes  | 65555 bytes     | -0.03%    |
-| **128KB**  | Brotli    | 131072 bytes | 108264 bytes    | 17.40%    |
-|            | Gzip      | 131072 bytes | 108350 bytes    | 17.34%    |
-|            | LZ4       | 131072 bytes | 131091 bytes    | -0.01%    |
-| **256KB**  | Brotli    | 262144 bytes | 216549 bytes    | 17.39%    |
-|            | Gzip      | 262144 bytes | 216699 bytes    | 17.34%    |
-|            | LZ4       | 262144 bytes | 262163 bytes    | -0.01%    |
-| **512KB**  | Brotli    | 524288 bytes | 433146 bytes    | 17.38%    |
-|            | Gzip      | 524288 bytes | 433376 bytes    | 17.34%    |
-|            | LZ4       | 524288 bytes | 524307 bytes    | -0.00%    |
-| **1MB**    | Brotli    | 1048576 bytes| 866449 bytes    | 17.37%    |
-|            | Gzip      | 1048576 bytes| 866921 bytes    | 17.32%    |
-|            | LZ4       | 1048576 bytes| 1048595 bytes   | -0.00%    |
-| **10MB**   | Brotli    | 10485760 bytes| 8665188 bytes  | 17.36%    |
-|            | Gzip      | 10485760 bytes| 8667954 bytes  | 17.34%    |
-|            | LZ4       | 10485760 bytes| 10485787 bytes | -0.00%    |
+**Workloads:** [Compress and decompress 1 MiB](#compress-and-decompress-1-mib)
 
-# Compression Results (Small structs with random data)
-| Size         | Algorithm | Encoded Size  | Compressed Size | Gain (%)  |
-|--------------|-----------|---------------|-----------------|-----------|
-| **1Small**   | Brotli    | 147 bytes     | 130 bytes       | 11.56%    |
-|              | Gzip      | 84 bytes      | 93 bytes        | -10.71%   |
-|              | LZ4       | 85 bytes      | 104 bytes       | -22.35%   |
-| **100Small** | Brotli    | 7943 bytes    | 4088 bytes      | 48.53%    |
-|              | Gzip      | 7946 bytes    | 4435 bytes      | 44.19%    |
-|              | LZ4       | 7952 bytes    | 7549 bytes      | 5.07%     |
-| **10KSmall** | Brotli    | 793441 bytes  | 393685 bytes    | 50.38%    |
-|              | Gzip      | 793320 bytes  | 426396 bytes    | 46.25%    |
-|              | LZ4       | 793333 bytes  | 601696 bytes    | 24.16%    |
-| **100KSmall**| Brotli    | 7933926 bytes | 3908434 bytes   | 50.74%    |
-|              | Gzip      | 7934106 bytes | 4261133 bytes   | 46.29%    |
-|              | LZ4       | 7934005 bytes | 5984094 bytes   | 24.58%    |
+### Compress and decompress 1 MiB
 
-# Compression Results (Repeated Data)
-| Size       | Algorithm | Encoded Size | Compressed Size | Gain (%)  |
-|------------|-----------|--------------|-----------------|-----------|
-| **2KB**    | Brotli    | 2048 bytes   | 24 bytes        | 98.83%    |
-|            | Gzip      | 2048 bytes   | 56 bytes        | 97.27%    |
-|            | LZ4       | 2048 bytes   | 56 bytes        | 97.27%    |
-| **4KB**    | Brotli    | 4096 bytes   | 25 bytes        | 99.39%    |
-|            | Gzip      | 4096 bytes   | 63 bytes        | 98.46%    |
-|            | LZ4       | 4096 bytes   | 64 bytes        | 98.44%    |
-| **8KB**    | Brotli    | 8192 bytes   | 25 bytes        | 99.69%    |
-|            | Gzip      | 8192 bytes   | 71 bytes        | 99.13%    |
-|            | LZ4       | 8192 bytes   | 80 bytes        | 99.02%    |
-| **16KB**   | Brotli    | 16384 bytes  | 25 bytes        | 99.85%    |
-|            | Gzip      | 16384 bytes  | 87 bytes        | 99.47%    |
-|            | LZ4       | 16384 bytes  | 113 bytes       | 99.31%    |
-| **32KB**   | Brotli    | 32768 bytes  | 25 bytes        | 99.92%    |
-|            | Gzip      | 32768 bytes  | 117 bytes       | 99.64%    |
-|            | LZ4       | 32768 bytes  | 177 bytes       | 99.46%    |
-| **64KB**   | Brotli    | 65536 bytes  | 25 bytes        | 99.96%    |
-|            | Gzip      | 65536 bytes  | 181 bytes       | 99.72%    |
-|            | LZ4       | 65536 bytes  | 305 bytes       | 99.53%    |
-| **128KB**  | Brotli    | 131072 bytes | 26 bytes        | 99.98%    |
-|            | Gzip      | 131072 bytes | 308 bytes       | 99.77%    |
-|            | LZ4       | 131072 bytes | 562 bytes       | 99.57%    |
-| **256KB**  | Brotli    | 262144 bytes | 26 bytes        | 99.99%    |
-|            | Gzip      | 262144 bytes | 560 bytes       | 99.79%    |
-|            | LZ4       | 262144 bytes | 1076 bytes      | 99.59%    |
-| **512KB**  | Brotli    | 524288 bytes | 26 bytes        | 100.00%   |
-|            | Gzip      | 524288 bytes | 1071 bytes      | 99.80%    |
-|            | LZ4       | 524288 bytes | 2104 bytes      | 99.60%    |
-| **1MB**    | Brotli    | 1048576 bytes| 26 bytes        | 100.00%   |
-|            | Gzip      | 1048576 bytes| 2087 bytes      | 99.80%    |
-|            | LZ4       | 1048576 bytes| 4160 bytes      | 99.60%    |
-| **10MB**   | Brotli    | 10485760 bytes| 39 bytes       | 100.00%   |
-|            | Gzip      | 10485760 bytes| 20403 bytes    | 99.81%    |
-|            | LZ4       | 10485760 bytes| 41236 bytes    | 99.61%    |
+One operation creates codec state and buffers, compresses a printable-ASCII input, then decompresses it. Inputs have the same size and distribution, but are generated separately for each codec.
 
+Baseline: **Gzip = 1.00×**. Median of 3 samples; GOMAXPROCS=16.
 
+Gzip and Brotli use their best-compression settings; LZ4 uses level 9. Comparable compressed sizes were not recorded, so these timings do not establish a size-versus-speed winner.
 
+| Implementation | Time/round trip, ms ↓ | Speed vs baseline ↑ | Allocated/round trip, MiB ↓ | Allocs/round trip ↓ |
+| --- | ---: | ---: | ---: | ---: |
+| **Gzip (baseline)** | 15.95 | 1.00× | 7.13 | 51 |
+| Brotli | 729.57 | 0.02× | 131.45 | 108 |
+| LZ4 | 1.02 | 15.58× | 5.24 | 25 |
+
+LZ4 has the lowest recorded median time: 15.58× the speed of Gzip, with 0.74× its allocated bytes per operation.
+
+<details>
+<summary>Observed ranges and allocation comparison</summary>
+
+| Implementation | Time min–max | Allocated min–max | Allocs min–max | Allocated vs baseline ↓ |
+| --- | ---: | ---: | ---: | ---: |
+| Gzip | 15.56–16.61 ms | 7.13–7.13 MiB | 49–51 | 1.00× |
+| Brotli | 704.24–752.54 ms | 131.44–131.45 MiB | 107–111 | 18.44× |
+| LZ4 | 1.01–1.04 ms | 5.22–5.25 MiB | 25 | 0.74× |
+
+</details>
+
+**Recorded samples:** [compression](../results/compression.txt)
+
+<!-- benchmark-results:end -->
+
+## Methodology
+
+One operation creates the codec and buffers, compresses the input, and decompresses
+the result. Input generation is excluded. Each codec receives independently
+generated bytes with the same size and distribution.
+
+| Codec | Setting |
+| --- | --- |
+| Brotli | `brotli.BestCompression` |
+| Gzip | `gzip.BestCompression` |
+| LZ4 | `lz4.Level9` |
+
+These settings do not imply equal compressed sizes. A timing advantage alone
+cannot establish which codec gives the best speed/size tradeoff.
+
+Separate correctness tests exercise random bytes, serialized structs, and
+repeated data. Their independently generated inputs do not establish a comparable
+compression-ratio result.
+
+## Running
+
+Requires Go 1.27.4+. From the repository root:
+
+```sh
+go test -p=1 -run '^$' -bench . -benchmem -benchtime=1s -count=3 ./compression
+```

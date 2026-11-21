@@ -1,0 +1,48 @@
+goos: linux
+goarch: amd64
+pkg: github.com/rah-0/benchmarks/protocol/tcp
+cpu: AMD Ryzen 9 5900HX with Radeon Graphics        
+BenchmarkTCPClientSendSingleMessage-16         	  184765	      6539 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage-16         	  183004	      6501 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage-16         	  183157	      6531 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage2KB-16      	  171100	      6858 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage2KB-16      	  174478	      6868 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage2KB-16      	  173559	      6873 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage4KB-16      	  155155	      7041 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage4KB-16      	  167066	      7039 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage4KB-16      	  166897	      7177 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage8KB-16      	  130521	      9336 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage8KB-16      	  129330	      9274 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage8KB-16      	  132410	      9321 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage16KB-16     	  133917	      8510 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage16KB-16     	  142789	      8277 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage16KB-16     	  141922	      8381 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage32KB-16     	   72280	     16830 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage32KB-16     	   72746	     16502 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage32KB-16     	   72145	     16701 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage64KB-16     	   36115	     33407 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage64KB-16     	   36273	     33291 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage64KB-16     	   35283	     33415 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage128KB-16    	   17679	     67410 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage128KB-16    	   17822	     66650 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage128KB-16    	   17853	     66552 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage256KB-16    	    9823	    133880 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage256KB-16    	    9578	    134267 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage256KB-16    	    9652	    133490 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage512KB-16    	    4826	    268204 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage512KB-16    	    4884	    268717 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage512KB-16    	    4750	    268936 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage1MB-16      	    2421	    540622 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage1MB-16      	    2348	    536253 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage1MB-16      	    2390	    538922 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage10MB-16     	     218	   5491943 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage10MB-16     	     220	   5399404 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage10MB-16     	     220	   5456699 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage100MB-16    	      24	  53152994 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage100MB-16    	      24	  53294561 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage100MB-16    	      24	  54322059 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage1GB-16      	       2	 549036647 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage1GB-16      	       2	 544262633 ns/op	       0 B/op	       0 allocs/op
+BenchmarkTCPClientSendSingleMessage1GB-16      	       2	 553573758 ns/op	       0 B/op	       0 allocs/op
+PASS
+ok  	github.com/rah-0/benchmarks/protocol/tcp	72.873s

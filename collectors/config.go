@@ -10,9 +10,9 @@ import (
 
 // Runtime images are pinned to Linux/amd64 manifests.
 const (
-	slogxImage     = "debian:bookworm-slim@sha256:5ae3c39ebd15e229dcedd5cee596b2497182493d41ff162e824ba13fc1b2b867"
-	vectorImage    = "timberio/vector:0.58.0-debian@sha256:9a68d40824ea5285a716bbe1872dba3cafdc7899deae4821d0c414416f7a8648"
-	fluentBitImage = "cr.fluentbit.io/fluent/fluent-bit:5.1.2@sha256:71cda445290efc2d45d565c12e0de4b15aa0182510276ad50c317aae1423d7ee"
+	slogxImage     = "debian:trixie-slim@sha256:7378260c0a098d27ac206225db5e7d92b8c7c84ea7afccc86eeb513756bbd392"
+	vectorImage    = "timberio/vector:0.62.0-debian@sha256:6ac7a9272e529e4d111ad30493a5a35c290b3d7e1c33f2f2df306c5fad1e64d3"
+	fluentBitImage = "cr.fluentbit.io/fluent/fluent-bit:5.2.0@sha256:de3d2860ffaf6a7a3d9f26c80d184b49eb8e08d649730acac4ec2d9cfb671c5b"
 )
 
 //go:embed config/vector.toml

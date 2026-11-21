@@ -9,18 +9,9 @@ import (
 )
 
 var (
-	httpAddress = "localhost:8080"
+	httpAddress string
 	client      *Client
 )
-
-func httpServerStart() {
-	http.HandleFunc("/test", handleHTTPRequest)
-
-	log.Printf("HTTP server listening on %s", httpAddress)
-	if err := http.ListenAndServe(httpAddress, nil); err != nil {
-		log.Fatalf("Error starting HTTP server: %v", err)
-	}
-}
 
 func handleHTTPRequest(w http.ResponseWriter, r *http.Request) {
 	// Read the request body

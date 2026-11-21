@@ -18,6 +18,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"runtime"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"syscall"
@@ -147,7 +148,15 @@ func run(ctx context.Context, opts options, output io.Writer) error {
 		"collector_cpu": opts.CPU, "records": opts.Records, "sizes": sizes,
 		"repeat": opts.Repeat, "outage_seconds": opts.Outage.Seconds(),
 		"images": images, "collectors": names,
-		"container_manager": "testcontainers-go v0.44.0",
+		"container_manager": "testcontainers-go",
+	}
+	if info, ok := debug.ReadBuildInfo(); ok {
+		for _, dependency := range info.Deps {
+			if dependency.Path == "github.com/testcontainers/testcontainers-go" {
+				meta["container_manager"] = "testcontainers-go " + dependency.Version
+				break
+			}
+		}
 	}
 	if binaryDigest != "" {
 		meta["slogx_module"] = slogxModule

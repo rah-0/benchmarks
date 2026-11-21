@@ -1,16 +1,37 @@
 package meta
 
 import (
+	"slices"
 	"sort"
 	"strconv"
 	"testing"
 
 	pargosort "github.com/exascience/pargo/sort"
-	"github.com/jfcg/sorty"
+	"github.com/jfcg/sorty/v2"
 	"github.com/rah-0/parsort"
 )
 
 var testSizes = []int{10_000, 100_000, 1_000_000, 10_000_000}
+
+func TestSortingLibraries(t *testing.T) {
+	input := genInts(10_000)
+	want := slices.Clone(input)
+	sort.Ints(want)
+	for name, sortValues := range map[string]func([]int){
+		"Go":      sort.Ints,
+		"Sorty":   func(values []int) { sorty.SortSlice(values) },
+		"Pargo":   func(values []int) { pargosort.Sort(pargoInts(values)) },
+		"Parsort": func(values []int) { parsort.IntAsc(values) },
+	} {
+		t.Run(name, func(t *testing.T) {
+			got := slices.Clone(input)
+			sortValues(got)
+			if !slices.Equal(got, want) {
+				t.Fatal("sort result differs from Go's ascending order")
+			}
+		})
+	}
+}
 
 func BenchmarkSortInts(b *testing.B) {
 	for _, size := range testSizes {
@@ -36,7 +57,7 @@ func BenchmarkSortyInts(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				tmp := make([]int, len(data))
 				copy(tmp, data)
-				sorty.SortI(tmp)
+				sorty.SortSlice(tmp)
 			}
 		})
 	}

@@ -2,12 +2,13 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"log"
 	"net"
 )
 
 var (
-	address = "localhost:55555"
+	address = "127.0.0.1:0"
 	server  net.Listener
 	client  *TCPClient
 )
@@ -17,6 +18,7 @@ func tcpStartServer() (err error) {
 	if err != nil {
 		return err
 	}
+	address = server.Addr().String()
 
 	log.Printf("TCP server listening on %s", address)
 
@@ -24,6 +26,9 @@ func tcpStartServer() (err error) {
 		for {
 			conn, err := server.Accept()
 			if err != nil {
+				if errors.Is(err, net.ErrClosed) {
+					return
+				}
 				log.Printf("Error accepting connection: %v", err)
 				continue
 			}

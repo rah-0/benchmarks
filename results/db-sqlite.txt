@@ -1,0 +1,21 @@
+goos: linux
+goarch: amd64
+pkg: github.com/rah-0/benchmarks/db/sqlite
+cpu: AMD Ryzen 9 5900HX with Radeon Graphics        
+BenchmarkSQLiteSingleInsertFixedData-16               	   59590	     19916 ns/op	     840 B/op	      15 allocs/op
+BenchmarkSQLiteSingleInsertFixedData-16               	   60703	     19774 ns/op	     840 B/op	      15 allocs/op
+BenchmarkSQLiteSingleInsertFixedData-16               	   61017	     19768 ns/op	     840 B/op	      15 allocs/op
+BenchmarkSQLiteSingleInsertRandomData-16              	   56582	     22354 ns/op	     904 B/op	      17 allocs/op
+BenchmarkSQLiteSingleInsertRandomData-16              	   57237	     22213 ns/op	     904 B/op	      17 allocs/op
+BenchmarkSQLiteSingleInsertRandomData-16              	   56668	     22221 ns/op	     904 B/op	      17 allocs/op
+BenchmarkSQLiteInsert1MilAndFindMiddle-16             	  164367	      7246 ns/op	     800 B/op	      21 allocs/op
+BenchmarkSQLiteInsert1MilAndFindMiddle-16             	  161218	      7270 ns/op	     800 B/op	      21 allocs/op
+BenchmarkSQLiteInsert1MilAndFindMiddle-16             	  164444	      7258 ns/op	     800 B/op	      21 allocs/op
+BenchmarkSQLiteInsert100kAndSort-16                   	      44	  23938681 ns/op	 8000780 B/op	  300016 allocs/op
+BenchmarkSQLiteInsert100kAndSort-16                   	      46	  23888767 ns/op	 8000843 B/op	  300017 allocs/op
+BenchmarkSQLiteInsert100kAndSort-16                   	      46	  23934469 ns/op	 8000836 B/op	  300017 allocs/op
+BenchmarkSQLiteInsert100kAndQueryOlderThan15Min-16    	      18	  64413214 ns/op	12801179 B/op	  480024 allocs/op
+BenchmarkSQLiteInsert100kAndQueryOlderThan15Min-16    	      18	  65171713 ns/op	12801179 B/op	  480024 allocs/op
+BenchmarkSQLiteInsert100kAndQueryOlderThan15Min-16    	      16	  65595517 ns/op	12801171 B/op	  480024 allocs/op
+PASS
+ok  	github.com/rah-0/benchmarks/db/sqlite	29.278s

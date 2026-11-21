@@ -1,217 +1,212 @@
 package sqlite
 
 import (
-	"math/rand"
+	"database/sql"
+	"fmt"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
-
-	"github.com/rah-0/benchmarks/util/testutil"
 )
 
-func TestMain(m *testing.M) {
-	testutil.TestMainWrapper(testutil.TestConfig{
-		M: m,
-		LoadResources: func() error {
-			if err := dbConnect(); err != nil {
-				return err
+func TestMain(m *testing.M) { os.Exit(runTests(m)) }
+
+func runTests(m *testing.M) (code int) {
+	dir, err := os.MkdirTemp("", "sqlite-benchmark-")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return 1
+	}
+	defer func() {
+		if err := os.RemoveAll(dir); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			code = 1
+		}
+	}()
+	if err := dbConnect(filepath.Join(dir, "benchmark.db")); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return 1
+	}
+	defer func() {
+		if err := dbDisconnect(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			code = 1
+		}
+	}()
+	return m.Run()
+}
+
+type fixture struct {
+	middleID     string
+	cutoff       time.Time
+	matchingRows int
+}
+
+func resetTable(tb testing.TB) {
+	tb.Helper()
+	if err := dbTableSampleADrop(); err != nil {
+		tb.Fatal(err)
+	}
+	if err := dbTableSampleACreate(); err != nil {
+		tb.Fatal(err)
+	}
+}
+
+// Read benchmarks populate an independent fixture before B.Loop starts timing.
+// A transaction and prepared insert keep population outside the measured work.
+func prepareFixture(tb testing.TB, totalRows int) fixture {
+	tb.Helper()
+	resetTable(tb)
+	reference := time.Date(2026, time.January, 1, 12, 0, 0, 0, time.UTC)
+	result := fixture{cutoff: reference.Add(-15 * time.Minute), matchingRows: totalRows * 4 / 5}
+	tx, err := db.Begin()
+	if err != nil {
+		tb.Fatal(err)
+	}
+	defer tx.Rollback()
+	stmt, err := tx.Prepare("INSERT INTO sample_a (FieldA, FirstInsert) VALUES (?, ?)")
+	if err != nil {
+		tb.Fatal(err)
+	}
+	defer stmt.Close()
+	for i := range totalRows {
+		id := uuid.NewString()
+		if i == totalRows/2 {
+			result.middleID = id
+		}
+		minutes := i % 10
+		if i < result.matchingRows {
+			minutes += 16
+		}
+		insertedAt := reference.Add(-time.Duration(minutes) * time.Minute)
+		if _, err := stmt.Exec(id, insertedAt); err != nil {
+			tb.Fatal(err)
+		}
+	}
+	if err := stmt.Close(); err != nil {
+		tb.Fatal(err)
+	}
+	if err := tx.Commit(); err != nil {
+		tb.Fatal(err)
+	}
+	return result
+}
+
+func checkRows(tb testing.TB, rows *sql.Rows, expected int, byTime bool) {
+	tb.Helper()
+	defer rows.Close()
+	var previous string
+	var previousTime time.Time
+	count := 0
+	for rows.Next() {
+		var id string
+		if byTime {
+			var insertedAt time.Time
+			if err := rows.Scan(&id, &insertedAt); err != nil {
+				tb.Fatal(err)
 			}
-			if err := dbTableSampleACreate(); err != nil {
-				return err
+			if count > 0 && insertedAt.Before(previousTime) {
+				tb.Fatal("timestamps are not sorted")
 			}
-			return nil
-		},
-		UnloadResources: func() error {
-			if err := dbTableSampleADrop(); err != nil {
-				return err
+			previousTime = insertedAt
+		} else {
+			if err := rows.Scan(&id); err != nil {
+				tb.Fatal(err)
 			}
-			if err := dbDisconnect(); err != nil {
-				return err
+			if count > 0 && id < previous {
+				tb.Fatal("IDs are not sorted")
 			}
-			os.Remove("./benchmark.db")
-			return nil
-		},
-	})
+			previous = id
+		}
+		count++
+	}
+	if err := rows.Err(); err != nil {
+		tb.Fatal(err)
+	}
+	if err := rows.Close(); err != nil {
+		tb.Fatal(err)
+	}
+	if count != expected {
+		tb.Fatalf("expected %d rows, got %d", expected, count)
+	}
+}
+
+func TestFixturesAreIndependent(t *testing.T) {
+	for _, size := range []int{10, 5} {
+		fixture := prepareFixture(t, size)
+		var count int
+		if err := db.QueryRow("SELECT COUNT(*) FROM sample_a").Scan(&count); err != nil {
+			t.Fatal(err)
+		}
+		if count != size {
+			t.Fatalf("expected %d fixture rows, got %d", size, count)
+		}
+		rows, err := db.Query("SELECT FieldA, FirstInsert FROM sample_a WHERE FirstInsert < ? ORDER BY FirstInsert", fixture.cutoff)
+		if err != nil {
+			t.Fatal(err)
+		}
+		checkRows(t, rows, fixture.matchingRows, true)
+	}
 }
 
 func BenchmarkSQLiteSingleInsertFixedData(b *testing.B) {
-	defer testutil.RecoverBenchHandler(b)
-
+	resetTable(b)
 	b.ReportAllocs()
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		if err := dbTableSampleAInsert("9xKf3QpLm2Ry7UbHt6NwEjVg8As5OcIy4B"); err != nil {
-			b.Fatalf("Insert failed on iteration %d: %v", i, err)
+			b.Fatal(err)
 		}
 	}
 }
 
 func BenchmarkSQLiteSingleInsertRandomData(b *testing.B) {
-	defer testutil.RecoverBenchHandler(b)
-
+	resetTable(b)
 	b.ReportAllocs()
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		if err := dbTableSampleAInsert(uuid.NewString()); err != nil {
-			b.Fatalf("Insert failed on iteration %d: %v", i, err)
+			b.Fatal(err)
 		}
 	}
 }
 
 func BenchmarkSQLiteInsert1MilAndFindMiddle(b *testing.B) {
-	defer testutil.RecoverBenchHandler(b)
-
-	const totalRows = 1_000_000
-	middleIndex := totalRows / 2
-	uuids := make([]string, totalRows)
-
-	for i := range uuids {
-		uuids[i] = uuid.NewString()
-	}
-
-	for _, id := range uuids {
-		if err := dbTableSampleAInsert(id); err != nil {
-			b.Fatalf("Insert failed: %v", err)
-		}
-	}
-
+	fixture := prepareFixture(b, 1_000_000)
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		var found string
-		row := db.QueryRow(`SELECT FieldA FROM sample_a WHERE FieldA = ? LIMIT 1`, uuids[middleIndex])
+		row := db.QueryRow("SELECT FieldA FROM sample_a WHERE FieldA = ? LIMIT 1", fixture.middleID)
 		if err := row.Scan(&found); err != nil {
-			b.Fatalf("Select failed: %v", err)
+			b.Fatal(err)
 		}
-		if found != uuids[middleIndex] {
-			b.Fatalf("Expected %s, got %s", uuids[middleIndex], found)
+		if found != fixture.middleID {
+			b.Fatalf("expected %s, got %s", fixture.middleID, found)
 		}
 	}
 }
 
-var inserted bool
-
 func BenchmarkSQLiteInsert100kAndSort(b *testing.B) {
-	defer testutil.RecoverBenchHandler(b)
-
 	const totalRows = 100_000
-	uuids := make([]string, totalRows)
-
-	if !inserted {
-		for i := range uuids {
-			uuids[i] = uuid.NewString()
-			if err := dbTableSampleAInsert(uuids[i]); err != nil {
-				b.Fatalf("Insert failed: %v", err)
-			}
-		}
-
-		inserted = true
-	}
-
+	prepareFixture(b, totalRows)
 	b.ReportAllocs()
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		rows, err := db.Query(`SELECT FieldA FROM sample_a ORDER BY FieldA ASC`)
+	for b.Loop() {
+		rows, err := db.Query("SELECT FieldA FROM sample_a ORDER BY FieldA ASC")
 		if err != nil {
-			b.Fatalf("Select failed: %v", err)
+			b.Fatal(err)
 		}
-
-		var last string
-		first := true
-		count := 0
-
-		for rows.Next() {
-			var field string
-			if err := rows.Scan(&field); err != nil {
-				b.Fatalf("Row scan failed: %v", err)
-			}
-			if !first && field < last {
-				b.Fatalf("Sort order incorrect at row %d: %s < %s", count, field, last)
-			}
-			last = field
-			first = false
-			count++
-		}
-		rows.Close()
-
-		if count != totalRows {
-			b.Fatalf("Expected %d rows, got %d", totalRows, count)
-		}
-		if err := rows.Err(); err != nil {
-			b.Fatalf("Row iteration error: %v", err)
-		}
+		checkRows(b, rows, totalRows, false)
 	}
 }
 
 func BenchmarkSQLiteInsert100kAndQueryOlderThan15Min(b *testing.B) {
-	defer testutil.RecoverBenchHandler(b)
-
-	const totalRows = 100_000
-
-	if !inserted {
-		now := time.Now()
-
-		for i := 0; i < totalRows; i++ {
-			var insertTime time.Time
-			if i < int(float64(totalRows)*0.8) {
-				insertTime = now.Add(-time.Duration(16+rand.Intn(10)) * time.Minute)
-			} else {
-				insertTime = now.Add(-time.Duration(rand.Intn(10)) * time.Minute)
-			}
-
-			_, err := db.Exec(`INSERT INTO sample_a (FieldA, FirstInsert) VALUES (?, ?)`,
-				uuid.NewString(), insertTime.Format("2006-01-02 15:04:05"))
-			if err != nil {
-				b.Fatalf("Insert failed: %v", err)
-			}
-		}
-
-		inserted = true
-	}
-
+	fixture := prepareFixture(b, 100_000)
 	b.ReportAllocs()
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		rows, err := db.Query(`
-			SELECT FieldA, FirstInsert
-			FROM sample_a
-			WHERE FirstInsert < DATETIME('now', '-15 minutes')
-			ORDER BY FirstInsert
-		`)
+	for b.Loop() {
+		rows, err := db.Query("SELECT FieldA, FirstInsert FROM sample_a WHERE FirstInsert < ? ORDER BY FirstInsert", fixture.cutoff)
 		if err != nil {
-			b.Fatalf("Query failed: %v", err)
+			b.Fatal(err)
 		}
-
-		var count int
-		var last string
-		first := true
-		for rows.Next() {
-			var fieldA string
-			var ts string
-			if err := rows.Scan(&fieldA, &ts); err != nil {
-				b.Fatalf("Scan failed: %v", err)
-			}
-			if !first && ts < last {
-				b.Fatalf("Sort order invalid at row %d: %v before %v", count, ts, last)
-			}
-			last = ts
-			first = false
-			count++
-		}
-		rows.Close()
-
-		if err := rows.Err(); err != nil {
-			b.Fatalf("Row error: %v", err)
-		}
-
-		if count == 0 {
-			b.Fatalf("Expected some rows older than 15 minutes, got 0")
-		}
+		checkRows(b, rows, fixture.matchingRows, true)
 	}
 }

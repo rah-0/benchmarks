@@ -1,24 +1,40 @@
 package http
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/rah-0/benchmarks/util/testutil"
 )
 
 func TestMain(m *testing.M) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/test", handleHTTPRequest)
+	server := httptest.NewServer(mux)
+	httpAddress = server.Listener.Addr().String()
+
 	testutil.TestMainWrapper(testutil.TestConfig{
 		M: m,
 		LoadResources: func() error {
-			go httpServerStart()
-
 			if err := NewHTTPClient(); err != nil {
 				return err
 			}
 
 			return nil
 		},
+		UnloadResources: func() error {
+			client.client.CloseIdleConnections()
+			server.Close()
+			return nil
+		},
 	})
+}
+
+func TestHTTPClientSend(t *testing.T) {
+	if err := client.sendBytes([]byte("ready")); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func BenchmarkHTTPClientSendSingleMessage(b *testing.B) {

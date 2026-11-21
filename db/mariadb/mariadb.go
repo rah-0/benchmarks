@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"runtime"
 	"time"
-
-	"github.com/rah-0/benchmarks/util"
 )
 
 var (
@@ -31,14 +29,7 @@ func dbTableSampleAInsert(fieldAValue string) error {
 	return nil
 }
 
-func dbConnect() (err error) {
-	usr := util.GetEnvVariable("MariaDB_Usr")
-	pwd := util.GetEnvVariable("MariaDB_Pwd")
-	ip := util.GetEnvVariable("MariaDB_IP")
-	port := util.GetEnvVariable("MariaDB_Port")
-	dbName := util.GetEnvVariable("MariaDB_Name")
-
-	dsn := usr + ":" + pwd + "@tcp(" + ip + ":" + port + ")/" + dbName
+func dbConnect(dsn string) (err error) {
 	db, err = sql.Open("mysql", dsn)
 	if err != nil {
 		return err

@@ -1,0 +1,2 @@
+# Go pads CPU headers; keep recorded output byte-for-byte.
+/results/*.txt whitespace=-blank-at-eol

@@ -9,14 +9,14 @@ func BenchmarkMethodAccess(b *testing.B) {
 	p := &Person{}
 
 	b.Run("SetName", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			p.SetName("John")
 		}
 	})
 
 	b.Run("GetName", func(b *testing.B) {
 		p.SetName("John")
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_ = p.GetName()
 		}
 	})
@@ -28,14 +28,14 @@ func BenchmarkReflectionAccess(b *testing.B) {
 	nameField := val.FieldByName("Name")
 
 	b.Run("SetName", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			nameField.SetString("John")
 		}
 	})
 
 	b.Run("GetName", func(b *testing.B) {
 		nameField.SetString("John")
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_ = nameField.String()
 		}
 	})

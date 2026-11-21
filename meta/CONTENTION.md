@@ -1,215 +1,101 @@
-# Contention Benchmarks
+# Synchronization workloads and comparison boundaries
 
-`GOMAXPROCS=8`, `benchtime=10s`. All results use a package-level sink variable to prevent dead-code elimination.
+Use this guide to interpret the [measured comparisons](README.MD#results).
+The loops are in [contention_test.go](contention_test.go); implementations are in
+[contention.go](contention.go).
 
----
+**Match completion and visibility guarantees before comparing speed.** Updating
+a shared value, enqueueing an update, and producing an estimate are different
+operations, even when each benchmark is described as a counter increment.
 
-## A. Shared-State Protection
+| Workload | Meaningful comparison |
+| --- | --- |
+| Synchronous shared counter | Atomic, lock, and CAS operations that finish the update before returning. |
+| Deferred update submission | Submission to an owner goroutine or buffered aggregator; publication may happen later. |
+| Reduced contention | Sharding, local accumulation, and sampling, with their read and visibility costs stated. |
+| Queue transfer | One value transferred between the stated number of producers and consumers. |
+| Shared-key map access | The same operation and populated key set. |
+| Runtime primitive | Matching work and initialization state. |
 
-Use when you have one piece of shared state and need correctness first. Simple API, exact semantics.
+`RunParallel` distributes operations across workers according to GOMAXPROCS.
+Elapsed time divided by the total operations describes **aggregate throughput**,
+not per-call latency. Tiny parallel time/op values should be read in that sense.
 
-- **Atomic** — best for trivial numeric updates (counters, gauges).
-- **Mutex** — general-purpose; protects arbitrary state.
-- **RWMutex** — read-heavy state with occasional writes.
-- **CAS Spin / CAS Backoff** — educational / special-case; CAS Backoff yields via `Gosched()` between retries which reduces cache-line bouncing but is scheduler-yielding backoff, not comparable to `atomic.Add` as pure work.
+## Shared counters
 
-### Write-Only (Inc-Only)
+The three access patterns are update-only, read-only, and nine updates followed
+by one read per worker. Atomic access is the reference for equivalent synchronous
+operations; channel submission has its own completion boundary.
 
-| Algorithm | ns/op | B/op | allocs/op | Benchmark |
-|-----------|------:|-----:|----------:|-----------|
-| CAS Backoff | 4.06 | 0 | 0 | `Counters_IncOnly/CAS_Backoff` |
-| Atomic | 11.28 | 0 | 0 | `Counters_IncOnly/Atomic` |
-| RWMutex | 23.29 | 0 | 0 | `Counters_IncOnly/RWMutex` |
-| Mutex | 29.38 | 0 | 0 | `Counters_IncOnly/Mutex` |
-| CAS Spin | 49.87 | 0 | 0 | `Counters_IncOnly/CAS_Spin` |
+| Implementation | Operation and semantics |
+| --- | --- |
+| Atomic | An atomic addition or load of one shared counter. |
+| Mutex | An addition or read protected by `sync.Mutex`. |
+| RWMutex | Writers take the exclusive lock; readers take the shared lock. |
+| CAS Spin | Retry a compare-and-swap until the addition succeeds. |
+| CAS Backoff | Retry compare-and-swap with increasing `runtime.Gosched` calls after failures. Timing includes scheduler yields. |
+| Channel | Send an increment request to one owner goroutine, or send a read request and wait for its reply. |
 
-### Read-Only (Get-Only)
+Channel buffer sizes are 0, 1, 256, and 4,096. An increment measures submission;
+the owner may apply it later. A read includes a request/reply exchange. Each
+worker reuses its reply channel. These completion boundaries differ from the
+atomic and locked updates.
 
-| Algorithm | ns/op | B/op | allocs/op | Benchmark |
-|-----------|------:|-----:|----------:|-----------|
-| Atomic | 1.78 | 0 | 0 | `Counters_GetOnly/Atomic` |
-| CAS Backoff | 1.78 | 0 | 0 | `Counters_GetOnly/CAS_Backoff` |
-| CAS Spin | 1.79 | 0 | 0 | `Counters_GetOnly/CAS_Spin` |
-| RWMutex | 26.62 | 0 | 0 | `Counters_GetOnly/RWMutex` |
-| Mutex | 31.70 | 0 | 0 | `Counters_GetOnly/Mutex` |
+## Reducing contention
 
-### Mixed (90% Write / 10% Read)
+Update cases measure increments. Read cases have no concurrent writers.
+The implementations exchange write contention for memory, read cost, delayed
+visibility, or approximation.
 
-| Algorithm | ns/op | B/op | allocs/op | Benchmark |
-|-----------|------:|-----:|----------:|-----------|
-| CAS Backoff | 4.48 | 0 | 0 | `Counters_Mixed90_10/CAS_Backoff` |
-| Atomic | 13.52 | 0 | 0 | `Counters_Mixed90_10/Atomic` |
-| RWMutex | 14.04 | 0 | 0 | `Counters_Mixed90_10/RWMutex` |
-| Mutex | 30.42 | 0 | 0 | `Counters_Mixed90_10/Mutex` |
-| CAS Spin | 34.76 | 0 | 0 | `Counters_Mixed90_10/CAS_Spin` |
+| Implementation | Operation and semantics |
+| --- | --- |
+| Sharded | Each worker updates a selected padded atomic shard. Reads sum all shards; a sum is not an atomic snapshot during concurrent writes. |
+| PerCPU | An array of GOMAXPROCS padded slots, selected by worker ID. Workers are not pinned to physical CPUs. Reads sum all slots. |
+| LocalBuffered | Each worker accumulates increments locally, flushes at a threshold, and flushes its remainder when finished. Reads omit unflushed increments. |
+| Approx | A worker-local xorshift state samples updates at rates 10, 100, or 1,000. Accepted updates add the sampling rate. This measures an estimate, not an exact count. |
+| FlatCombining | Queue an operation, then compete to apply a batch under a lock until that operation completes. |
+| MPSC aggregator | Submit increments through a buffered channel to one consumer, which publishes accumulated totals. Submission does not wait for publication. |
+| RCU | Allocate an updated counter state and replace the shared pointer with compare-and-swap; reads load the current pointer. Go's garbage collector reclaims old states. |
 
----
+Sharded cases use eight shards or `runtime.NumCPU()` shards. Buffered cases use
+thresholds 16, 64, and 256; MPSC channels use capacities 256 and 4,096. The
+approximate cases use a fixed seed per worker and measure execution cost rather
+than estimator accuracy. Read costs and visibility guarantees should be
+considered alongside update throughput.
 
-## B. Single-Owner / Actor Model
+## Queue transfers
 
-Use when one goroutine owns the state and others send operations via channels. Good for complex operations, cancellation, sequencing. Not for max throughput.
+The single-producer/single-consumer cases compare a channel with a ring buffer.
+Each operation transfers one value. Both retry non-blocking operations
+with `runtime.Gosched` when full or empty. Channel capacities are 256, 4,096, and
+65,536; the corresponding ring buffers reserve one slot to distinguish empty
+from full, so their usable capacities are one smaller.
 
-### Write-Only (Inc-Only)
+The Disruptor MPSC case divides all measured messages across four producers,
+including any remainder, and consumes every message before returning. One
+reported operation is one publish/consume transfer. Producers coordinate through
+the contiguous commit cursor; the consumer observes published values in order.
+Timing includes goroutine startup, retries, and completion waiting.
 
-| Buffer | ns/op | B/op | allocs/op | Benchmark |
-|-------:|------:|-----:|----------:|-----------|
-| 4096 | 70.28 | 0 | 0 | `Counters_IncOnly/Channel_buf4096` |
-| 256 | 72.25 | 0 | 0 | `Counters_IncOnly/Channel_buf256` |
-| 1 | 178.3 | 0 | 0 | `Counters_IncOnly/Channel_buf1` |
-| 0 | 212.0 | 0 | 0 | `Counters_IncOnly/Channel_buf0` |
+## Concurrent maps
 
-### Read-Only (Get-Only, request/reply round-trip)
+Store-only and load-only cases compare `sync.Map` with a mutex-protected reference.
+Workers repeatedly access the same set of 1,024 string keys. Load cases
+populate both maps before timing; store benchmarks include first insertion and
+subsequent replacement. Results describe this shared-key workload, not arbitrary
+map sizes or access patterns.
 
-| Buffer | ns/op | B/op | allocs/op | Benchmark |
-|-------:|------:|-----:|----------:|-----------|
-| 4096 | 349.4 | 0 | 0 | `Counters_GetOnly/Channel_buf4096` |
-| 256 | 355.0 | 0 | 0 | `Counters_GetOnly/Channel_buf256` |
-| 0 | 372.3 | 0 | 0 | `Counters_GetOnly/Channel_buf0` |
-| 1 | 393.8 | 0 | 0 | `Counters_GetOnly/Channel_buf1` |
+## Runtime primitives
 
-### Mixed (90% Write / 10% Read)
+| Workload | One operation |
+| --- | --- |
+| Semaphore | Acquire and release a channel-based semaphore with capacity 1, 4, 16, or 64. No protected workload runs between them. |
+| Spawn and wait | Create 1, 4, 16, or 64 goroutines with empty work and wait for all of them. |
+| Pool access | Get a reusable buffer from `sync.Pool` and return it, serially or across workers. |
+| Fresh initialization | Create a fresh instance, initialize it, and read its value. |
+| Shared initialization | Call initialization and read from one shared instance. Initialization happens once; subsequent operations use the initialized path. |
+| Already initialized | Initialize before timing, then repeatedly call initialization and read across workers. |
 
-| Buffer | ns/op | B/op | allocs/op | Benchmark |
-|-------:|------:|-----:|----------:|-----------|
-| 256 | 94.93 | 0 | 0 | `Counters_Mixed90_10/Channel_buf256` |
-| 4096 | 94.24 | 0 | 0 | `Counters_Mixed90_10/Channel_buf4096` |
-| 1 | 203.4 | 0 | 0 | `Counters_Mixed90_10/Channel_buf1` |
-| 0 | 224.8 | 0 | 0 | `Counters_Mixed90_10/Channel_buf0` |
-
----
-
-## C. Contention Reduction
-
-Use when you have very hot writes and can pay in memory, read cost, or precision.
-
-- **Sharded / PerCPU** — exact writes, near-zero contention; reads cost O(shards).
-- **LocalBuffered** — eventual consistency; goroutine-local accumulator flushed at threshold.
-- **Approx** — fastest; probabilistic sampling via xorshift PRNG, trades accuracy.
-- **FlatCombining** — niche; one combiner applies batched ops. Helps when ops are heavier than `++`.
-- **MPSC Aggregator** — batching via channel; good when you already have an event pipeline.
-- **RCU** — read-mostly structures; writes allocate a new copy (expensive).
-
-### Write Throughput (Inc-Only)
-
-| Algorithm | ns/op | B/op | allocs/op | Notes | Benchmark |
-|-----------|------:|-----:|----------:|-------|-----------|
-| Striped counter (N=8) | 0.222 | 0 | 0 | 8 padded shards | `Reduction_IncOnly/Sharded_8` |
-| Striped counter (N=NumCPU) | 0.248 | 0 | 0 | One shard per CPU | `Reduction_IncOnly/Sharded_NumCPU` |
-| Per-GOMAXPROCS counter | 0.252 | 0 | 0 | Sized to `GOMAXPROCS(0)` | `Reduction_IncOnly/PerCPU` |
-| Probabilistic (1-in-1000) | 0.313 | 0 | 0 | xorshift sample | `Reduction_IncOnly/Approx_rate1000` |
-| Local buffered (t=256) | 0.314 | 0 | 0 | Flush every 256 | `Reduction_IncOnly/LocalBuffered_t256` |
-| Local buffered (t=64) | 0.757 | 0 | 0 | | `Reduction_IncOnly/LocalBuffered_t64` |
-| Probabilistic (1-in-100) | 0.777 | 0 | 0 | | `Reduction_IncOnly/Approx_rate100` |
-| Local buffered (t=16) | 2.35 | 0 | 0 | More frequent flushes | `Reduction_IncOnly/LocalBuffered_t16` |
-| Probabilistic (1-in-10) | 3.61 | 0 | 0 | | `Reduction_IncOnly/Approx_rate10` |
-| MPSC aggregator (buf=256) | 88.27 | 0 | 0 | Channel + aggregator goroutine | `Reduction_IncOnly/MPSC_buf256` |
-| Flat combining | 91.71 | 9 | 0 | TryLock + combiner bottleneck | `Reduction_IncOnly/FlatCombining` |
-| MPSC aggregator (buf=4096) | 106.5 | 0 | 0 | | `Reduction_IncOnly/MPSC_buf4096` |
-| RCU (copy-on-write) | 126.6 | 29 | 3 | Allocates per write | `Reduction_IncOnly/RCU` |
-
-### Read Throughput (Get-Only)
-
-| Algorithm | ns/op | B/op | allocs/op | Notes | Benchmark |
-|-----------|------:|-----:|----------:|-------|-----------|
-| Striped counter (N=8) | 1.36 | 0 | 0 | Sums 8 shards | `Reduction_GetOnly/Sharded_8` |
-| Per-GOMAXPROCS counter | 1.36 | 0 | 0 | Sums all slots | `Reduction_GetOnly/PerCPU` |
-| RCU (copy-on-write) | 1.81 | 0 | 0 | Single pointer load | `Reduction_GetOnly/RCU` |
-| Probabilistic (rate=100) | 1.82 | 0 | 0 | Single atomic load | `Reduction_GetOnly/Approx_rate100` |
-
----
-
-## D. Message Passing / Queues
-
-Use when the problem is moving data between goroutines, not protecting a counter.
-
-- **SPSC Ring Buffer** — lock-free, cache-friendly single-producer single-consumer.
-- **Channel** — Go runtime channel; same SPSC role, higher overhead.
-- **Disruptor MPSC** — sequence-based ring, many producers → one consumer. Sensitive to commit-ordering contention on the contiguous cursor.
-
-### SPSC: Ring Buffer vs Channel
-
-Both use non-blocking send + `Gosched()` backpressure.
-
-| Implementation | Size | ns/op | B/op | allocs/op | Benchmark |
-|----------------|-----:|------:|-----:|----------:|-----------|
-| Ring Buffer | 256 | 16.56 | 0 | 0 | `SPSC/RingBuffer_size256` |
-| Ring Buffer | 65536 | 26.10 | 0 | 0 | `SPSC/RingBuffer_size65536` |
-| Ring Buffer | 4096 | 29.55 | 0 | 0 | `SPSC/RingBuffer_size4096` |
-| Channel | 65536 | 41.21 | 0 | 0 | `SPSC/Chan_buf65536` |
-| Channel | 4096 | 41.66 | 0 | 0 | `SPSC/Chan_buf4096` |
-| Channel | 256 | 46.04 | 0 | 0 | `SPSC/Chan_buf256` |
-
-Ring buffer is ~2× faster than channels. Both zero-alloc.
-
-### Disruptor MPSC (4 producers, 1 consumer)
-
-| Ring Size | ns/op | B/op | allocs/op | Benchmark |
-|----------:|------:|-----:|----------:|-----------|
-| 256 | 2,619 | 0 | 0 | `DisruptorMPSC/size256` |
-| 4096 | 2,713 | 0 | 0 | `DisruptorMPSC/size4096` |
-| 65536 | 2,781 | 0 | 0 | `DisruptorMPSC/size65536` |
-
-ns/op includes 4 producer publishes + 4 consumer reads per iteration. The contiguous commit CAS is the bottleneck.
-
----
-
-## E. Concurrent Maps
-
-Use when you need shared key/value access.
-
-- **sync.Map** — optimized for read-mostly, many goroutines. Allocates on writes.
-- **MutexMap** — `sync.Mutex` + `map`. Predictable; better for write-heavy.
-
-| Operation | sync.Map | MutexMap | Benchmark |
-|-----------|------:|------:|-----------|
-| StoreOnly | 83.13 ns/op (72 B, 3 allocs) | 43.71 ns/op (0 B, 0 allocs) | `Map_StoreOnly/*` |
-| LoadOnly | 9.77 ns/op (0 B, 0 allocs) | 49.62 ns/op (0 B, 0 allocs) | `Map_LoadOnly/*` |
-
-sync.Map is 5× faster for reads but 2× slower (and allocates) for writes.
-
----
-
-## F. Runtime Primitives
-
-Common building blocks — not contention mechanisms per se, but useful for benchmarking coordination costs.
-
-### Semaphore (channel-based)
-
-| Max Concurrency | ns/op | B/op | allocs/op | Benchmark |
-|----------------:|------:|-----:|----------:|-----------|
-| 1 | 107.2 | 0 | 0 | `Semaphore/max1` |
-| 4 | 198.7 | 0 | 0 | `Semaphore/max4` |
-| 16 | 30.98 | 0 | 0 | `Semaphore/max16` |
-| 64 | 31.80 | 0 | 0 | `Semaphore/max64` |
-
-Contention spikes when max concurrency is near the number of goroutines competing. Once capacity exceeds demand, acquire/release is cheap.
-
-### Goroutine Spawn + WaitGroup
-
-| Workers | ns/op | B/op | allocs/op | Benchmark |
-|--------:|------:|-----:|----------:|-----------|
-| 1 | 347 | 40 | 2 | `SpawnAndWait/workers1` |
-| 4 | 891 | 112 | 5 | `SpawnAndWait/workers4` |
-| 16 | 3,305 | 400 | 17 | `SpawnAndWait/workers16` |
-| 64 | 13,588 | 1,552 | 65 | `SpawnAndWait/workers64` |
-
-~210 ns/goroutine (creation + scheduling + barrier).
-
-### sync.Pool
-
-| Mode | ns/op | B/op | allocs/op | Benchmark |
-|------|------:|-----:|----------:|-----------|
-| Serial | 10.86 | 0 | 0 | `Pool/Serial` |
-| Parallel | 1.41 | 0 | 0 | `Pool/Parallel` |
-
-Per-P fast path scales perfectly under parallelism.
-
-### sync.Once
-
-| Mode | ns/op | B/op | allocs/op | Benchmark |
-|------|------:|-----:|----------:|-----------|
-| Serial (fresh init) | 26.24 | 24 | 1 | `Once/Serial` |
-| Contended (shared init) | 2.98 | 0 | 0 | `Once/Contended` |
-| Fast path (already init) | 2.94 | 0 | 0 | `Once/FastPath_AfterInit` |
-
-After first init, `Do()` is a single atomic load (~3 ns).
+These cases perform different amounts of work. Compare matching operations and
+their allocation counts instead of treating every row as an interchangeable
+synchronization strategy.

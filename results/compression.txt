@@ -1,0 +1,15 @@
+goos: linux
+goarch: amd64
+pkg: github.com/rah-0/benchmarks/compression
+cpu: AMD Ryzen 9 5900HX with Radeon Graphics        
+BenchmarkCompressDecompressBrotli-16    	       2	 729572534 ns/op	137829280 B/op	     108 allocs/op
+BenchmarkCompressDecompressBrotli-16    	       2	 704243666 ns/op	137832432 B/op	     111 allocs/op
+BenchmarkCompressDecompressBrotli-16    	       2	 752544674 ns/op	137835376 B/op	     107 allocs/op
+BenchmarkCompressDecompressGzip-16      	      75	  15555377 ns/op	 7474958 B/op	      51 allocs/op
+BenchmarkCompressDecompressGzip-16      	      66	  15954398 ns/op	 7474931 B/op	      49 allocs/op
+BenchmarkCompressDecompressGzip-16      	      68	  16613846 ns/op	 7474958 B/op	      51 allocs/op
+BenchmarkCompressDecompressLZ4-16       	    1244	   1038947 ns/op	 5498447 B/op	      25 allocs/op
+BenchmarkCompressDecompressLZ4-16       	    1112	   1010631 ns/op	 5478691 B/op	      25 allocs/op
+BenchmarkCompressDecompressLZ4-16       	    1156	   1024140 ns/op	 5506475 B/op	      25 allocs/op
+PASS
+ok  	github.com/rah-0/benchmarks/compression	14.281s

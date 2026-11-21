@@ -1,0 +1,12 @@
+goos: linux
+goarch: amd64
+pkg: github.com/rah-0/benchmarks/crypto/sign
+cpu: AMD Ryzen 9 5900HX with Radeon Graphics        
+BenchmarkJWTGeneration-16      	  150769	      8015 ns/op	    2331 B/op	      44 allocs/op
+BenchmarkJWTGeneration-16      	  148238	      8038 ns/op	    2331 B/op	      44 allocs/op
+BenchmarkJWTGeneration-16      	  147852	      8053 ns/op	    2331 B/op	      44 allocs/op
+BenchmarkJWTVerification-16    	  138878	      8541 ns/op	    2186 B/op	      38 allocs/op
+BenchmarkJWTVerification-16    	  138858	      8561 ns/op	    2186 B/op	      38 allocs/op
+BenchmarkJWTVerification-16    	  139618	      8532 ns/op	    2187 B/op	      38 allocs/op
+PASS
+ok  	github.com/rah-0/benchmarks/crypto/sign	7.680s

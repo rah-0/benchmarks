@@ -2,8 +2,7 @@ package sqlite
 
 import (
 	"database/sql"
-	"runtime"
-	"time"
+	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -12,21 +11,27 @@ var (
 	db *sql.DB
 )
 
-func dbConnect() error {
+func dbConnect(path string) error {
 	var err error
-	db, err = sql.Open("sqlite3", "./benchmark.db")
+	db, err = sql.Open("sqlite3", path)
 	if err != nil {
 		return err
 	}
-	db.SetMaxOpenConns(runtime.NumCPU())
-	db.SetConnMaxLifetime(time.Minute * 5)
-	db.SetConnMaxIdleTime(time.Minute * 1)
-	db.Exec(`PRAGMA synchronous = OFF;`)
-	db.Exec(`PRAGMA journal_mode = WAL;`)
-	db.Exec(`PRAGMA cache_size = -2097152;`)
-	db.Exec(`PRAGMA temp_store = MEMORY;`)
-	db.Exec(`PRAGMA locking_mode = EXCLUSIVE;`)
-	db.Exec(`PRAGMA mmap_size = 8589934592;`)
+	// PRAGMAs apply to a connection, so retain one connection for this serial suite.
+	db.SetMaxOpenConns(1)
+	for _, statement := range []string{
+		`PRAGMA synchronous = OFF;`,
+		`PRAGMA journal_mode = WAL;`,
+		`PRAGMA cache_size = -2097152;`,
+		`PRAGMA temp_store = MEMORY;`,
+		`PRAGMA locking_mode = EXCLUSIVE;`,
+		`PRAGMA mmap_size = 8589934592;`,
+	} {
+		if _, err := db.Exec(statement); err != nil {
+			db.Close()
+			return fmt.Errorf("configure SQLite: %w", err)
+		}
+	}
 	return nil
 }
 
